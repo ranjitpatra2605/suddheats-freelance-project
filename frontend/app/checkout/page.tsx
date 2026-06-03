@@ -235,9 +235,7 @@ export default function CheckoutPage() {
                     paymentMethod: 'Mock'
                 });
                 backendOrderId = order._id;
-                try {
-                    await api.post('/orders/send-sms', { phone: form.phone, orderId: backendOrderId, totalPrice: total, itemCount: items.length });
-                } catch { console.log('SMS notification sent (or notifications disabled)'); }
+
             } catch { /* fallback to mock ID */ }
             clearCart();
             setOrderId(backendOrderId);

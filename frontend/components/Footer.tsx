@@ -6,9 +6,9 @@ export default function Footer() {
     return (
         <footer style={{ background: '#475d2a' }} className="text-white">
             <div className="page-container pt-16 pb-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
                     {/* Brand */}
-                    <div className="col-span-1 md:col-span-1">
+                    <div className="col-span-1 sm:col-span-2 lg:col-span-1">
                         <div className="h-24 w-24 rounded-full overflow-hidden flex items-center justify-center mb-6" style={{ background: 'rgba(255,255,255,0.95)' }}>
                             <Image
                                 src="/images/logo-se-circle.png"
@@ -48,7 +48,29 @@ export default function Footer() {
                                 { label: 'Contact', href: '/contact' },
                                 { label: 'Track Order', href: '/track' },
                             ].map(l => (
-                                <Link key={l.href} href={l.href} className="text-sm opacity-75 hover:opacity-100 hover:text-[rgb(223,196,172)] transition-colors">{l.label}</Link>
+                                <Link key={l.href} href={l.href} className="group flex items-center gap-2 text-sm opacity-75 hover:opacity-100 hover:text-[rgb(223,196,172)] transition-all duration-300 w-fit">
+                                    <span className="w-0 h-0 overflow-hidden group-hover:w-1.5 group-hover:h-1.5 rounded-full bg-[rgb(223,196,172)] transition-all duration-300 flex-shrink-0"></span>
+                                    <span className="transition-transform duration-300 group-hover:translate-x-1">{l.label}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Information */}
+                    <div>
+                        <h4 className="font-bold text-sm uppercase tracking-wider mb-5 opacity-60">Information</h4>
+                        <div className="flex flex-col gap-3">
+                            {[
+                                { label: 'Contact Information', href: '/contact' },
+                                { label: 'Refund policy', href: '/refund' },
+                                { label: 'Privacy Policy', href: '/privacy' },
+                                { label: 'Shipping policy', href: '/shipping' },
+                                { label: 'Terms of service', href: '/terms' },
+                            ].map(l => (
+                                <Link key={l.href} href={l.href} className="group flex items-center gap-2 text-sm opacity-75 hover:opacity-100 hover:text-[rgb(223,196,172)] transition-all duration-300 w-fit">
+                                    <span className="w-0 h-0 overflow-hidden group-hover:w-1.5 group-hover:h-1.5 rounded-full bg-[rgb(223,196,172)] transition-all duration-300 flex-shrink-0"></span>
+                                    <span className="transition-transform duration-300 group-hover:translate-x-1">{l.label}</span>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -59,7 +81,10 @@ export default function Footer() {
                         <div className="flex flex-col gap-3">
                             {['Flavoured Makhanas', 'Air Fried Chips', 'No Sugar No Palm Oil Millet Cookies'].map(c => (
                                 <Link key={c} href={`/shop?category=${encodeURIComponent(c)}`}
-                                    className="text-sm opacity-75 hover:opacity-100 hover:text-[rgb(223,196,172)] transition-colors">{c}</Link>
+                                    className="group flex items-center gap-2 text-sm opacity-75 hover:opacity-100 hover:text-[rgb(223,196,172)] transition-all duration-300 w-fit">
+                                    <span className="w-0 h-0 overflow-hidden group-hover:w-1.5 group-hover:h-1.5 rounded-full bg-[rgb(223,196,172)] transition-all duration-300 flex-shrink-0"></span>
+                                    <span className="transition-transform duration-300 group-hover:translate-x-1">{c}</span>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -85,10 +110,8 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs opacity-50">
                     <p>© 2026 shuddheats.co.in - All rights reserved. Made with 💚 in India.</p>
-                    <div className="flex gap-4">
-                        <Link href="/privacy" className="hover:opacity-100 transition-opacity">Privacy Policy</Link>
-                        <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms of Service</Link>
-                        <Link href="/refund" className="hover:opacity-100 transition-opacity">Refund Policy</Link>
+                    <div className="text-center md:text-right italic">
+                        "Thank you for choosing healthy, guilt-free snacking! 🌱"
                     </div>
                 </div>
             </div>

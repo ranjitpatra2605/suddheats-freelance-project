@@ -383,15 +383,15 @@ export default function DashboardPage() {
                                                         {/* Tracking ID Copy block */}
                                                         <div>
                                                             <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-wider">Tracking AWB</p>
-                                                            {order.trackingId || (order.shiprocket && order.shiprocket.awb) ? (
+                                                            {order.trackingId ? (
                                                                 <div className="flex items-center gap-1.5 mt-0.5">
-                                                                    <span className="font-mono text-xs font-bold text-emerald-700 truncate max-w-[120px]">{order.trackingId || order.shiprocket.awb}</span>
+                                                                    <span className="font-mono text-xs font-bold text-emerald-700 truncate max-w-[120px]">{order.trackingId}</span>
                                                                     <button 
-                                                                        onClick={() => handleCopy(order.trackingId || order.shiprocket.awb, order.trackingId || order.shiprocket.awb, 'Tracking ID')}
+                                                                        onClick={() => handleCopy(order.trackingId, order.trackingId, 'Tracking ID')}
                                                                         className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400 hover:text-emerald-700 cursor-pointer"
                                                                         title="Copy Tracking ID"
                                                                     >
-                                                                        {copiedId === (order.trackingId || order.shiprocket.awb) ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                                                                        {copiedId === order.trackingId ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                                                                     </button>
                                                                 </div>
                                                             ) : (

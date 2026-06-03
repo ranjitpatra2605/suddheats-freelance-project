@@ -275,41 +275,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Carousel */}
-      <section className="py-10 bg-white overflow-hidden">
-        <div className="text-center mb-8 animate-fadeInUp page-container">
-          <h2 className="section-title text-2xl animate-fadeInUp delay-100">Quick Browse</h2>
-          <p className="section-subtitle mt-2 max-w-lg mx-auto text-sm animate-fadeInUp delay-200">Explore our popular categories</p>
-        </div>
-        {/* Infinite marquee — 8 copies ensures content always > viewport width */}
-        <div className="w-full overflow-hidden flex justify-center">
-          <div className="scroll-animate flex gap-12 w-max" style={{ '--duration': '18s' } as any}>
-            {Array.from({ length: 8 }).flatMap((_, setIdx) =>
-              [
-                { label: 'Flavoured Makhanas', emoji: '🌰', href: '/shop?category=Flavoured Makhanas' },
-                { label: 'Air Fried Chips', emoji: '🥔', href: '/shop?category=Air Fried Chips' },
-                { label: 'Millet Cookies', emoji: '🍪', href: '/shop?category=No Sugar No Palm Oil Millet Cookies' },
-              ].map((cat, i) => (
-                <Link
-                  key={`${setIdx}-${i}`}
-                  href={cat.href}
-                  className="flex flex-col items-center gap-2 flex-shrink-0 group"
-                >
-                  <div
-                    className="h-14 w-14 rounded-full flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-115 group-hover:shadow-md"
-                    style={{ background: '#f0f4ed' }}
-                  >
-                    {cat.emoji}
-                  </div>
-                  <span className="text-xs font-semibold text-[#475d2a] whitespace-nowrap">
-                    {cat.label}
-                  </span>
-                </Link>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
+
 
       {/* Featured */}
       <section className="py-12 bg-white animate-fadeInUp">

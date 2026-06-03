@@ -27,14 +27,9 @@ const orderSchema = new mongoose.Schema({
     itemsPrice: { type: Number, required: true },
     shippingPrice: { type: Number, default: 0 },
     totalPrice: { type: Number, required: true },
-    paymentMethod: { type: String, default: 'Razorpay' },
+    paymentMethod: { type: String, default: 'Mock' },
     isPaid: { type: Boolean, default: false },
     paidAt: Date,
-    paymentResult: {
-        razorpayOrderId: String,
-        razorpayPaymentId: String,
-        razorpaySignature: String
-    },
     status: {
         type: String,
         enum: ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'],
@@ -43,18 +38,6 @@ const orderSchema = new mongoose.Schema({
     trackingId: String,
     isDelivered: { type: Boolean, default: false },
     deliveredAt: Date,
-    // Shiprocket Integration Fields
-    shiprocket: {
-        shipmentId: String,
-        awb: String,
-        status: String,
-        carrier: String,
-        estimatedDeliveryDate: Date,
-        lastUpdated: Date,
-        pickupStatus: String,
-        isPickedUp: { type: Boolean, default: false },
-        pickupDate: Date
-    },
     createdAt: { type: Date, default: Date.now }
 });
 

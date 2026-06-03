@@ -175,7 +175,6 @@ JWT_SECRET                   # JWT signing secret
 FRONTEND_URL                 # Optional: restrict CORS to specific URL
 RAZORPAY_KEY_ID             # Razorpay API key
 RAZORPAY_KEY_SECRET         # Razorpay API secret
-TWILIO_*                    # Twilio SMS configuration
 ```
 
 ## Need Help?
@@ -190,3 +189,4 @@ TWILIO_*                    # Twilio SMS configuration
    - ❌ = Error
 3. Check that backend is actually listening on the IP shown at startup
 4. Verify frontend .env.local is saved and server is restarted
+
