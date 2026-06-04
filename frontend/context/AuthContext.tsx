@@ -12,6 +12,7 @@ interface User {
 
 export type LoginResponse = {
     requiresTwoFA?: boolean;
+    requiresTwoFASetup?: boolean;
     tempSessionToken?: string;
     token?: string;
     user?: any;
@@ -65,6 +66,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setRequiresTwoFA(true);
                 setTempSessionToken(data.tempSessionToken);
                 return { requiresTwoFA: true };
+            }
+
+            if (data.requiresTwoFASetup) {
+                // Admin without 2FA, needs setup
+                console.log('⚠️ 2FA setup required for admin:', { email });
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('token', data.token);
+                    document.cookie = `token=${data.token}; path=/; max-age=2592000; SameSite=Lax`;
+                }
+                api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+                setUser(data);
+                setRequiresTwoFA(false);
+                setTempSessionToken(null);
+                return { requiresTwoFASetup: true };
             }
 
             // Normal login

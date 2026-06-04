@@ -29,8 +29,11 @@ function LoginContent() {
         setLoading(true);
         try {
             const result = await login(email, password);
-            // Don't redirect here if 2FA is required - let useEffect handle it
-            if (!result?.requiresTwoFA) {
+            
+            if (result?.requiresTwoFASetup) {
+                toast.success('Admin login successful. Please set up 2FA.');
+                router.push('/admin/settings/2fa');
+            } else if (!result?.requiresTwoFA) {
                 toast.success('Welcome back! 🌿');
                 router.push(redirect);
             }
