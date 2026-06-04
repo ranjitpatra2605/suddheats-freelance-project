@@ -48,22 +48,11 @@ const allowedOrigins = [
 console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests without origin (like Postman/cURL)
-    if (!origin) {
-      return callback(null, true);
-    }
-    // Check if origin is in allowed list
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    console.warn(`⚠️ CORS blocked origin: ${origin}`);
-    return callback(new Error(`CORS blocked origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: true,
+  credentials: true
 }));
+
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
