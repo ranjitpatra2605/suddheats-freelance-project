@@ -28,9 +28,9 @@ function LoginContent() {
         e.preventDefault();
         setLoading(true);
         try {
-            await login(email, password);
+            const result = await login(email, password);
             // Don't redirect here if 2FA is required - let useEffect handle it
-            if (!requiresTwoFA) {
+            if (!result?.requiresTwoFA) {
                 toast.success('Welcome back! 🌿');
                 router.push(redirect);
             }

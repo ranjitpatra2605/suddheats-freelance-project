@@ -53,7 +53,7 @@ export default function TwoFASettingsPage() {
 
     const fetchTwoFAStatus = async () => {
         try {
-            const { data } = await api.get('/api/auth/profile');
+            const { data } = await api.get('/auth/profile');
             setTwoFAEnabled(data.twoFactorEnabled);
         } catch (err) {
             console.error('Error fetching 2FA status:', err);

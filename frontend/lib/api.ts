@@ -2,7 +2,10 @@ import axios from 'axios';
 
 // Use relative paths - works on any network (localhost, 192.168.x.x, hotspot, college network)
 // The Next.js rewrites config handles proxying to actual backend
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+let API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+if (API_URL.startsWith('http') && !API_URL.endsWith('/api')) {
+    API_URL = `${API_URL}/api`;
+}
 
 console.log('🌐 API URL configured:', API_URL);
 
