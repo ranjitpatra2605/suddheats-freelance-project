@@ -17,12 +17,6 @@ function LoginContent() {
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect') || '/';
 
-    // Redirect to 2FA verification if needed
-    useEffect(() => {
-        if (requiresTwoFA) {
-            router.push('/auth/admin-2fa-verify');
-        }
-    }, [requiresTwoFA, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,7 +27,10 @@ function LoginContent() {
             if (result?.requiresTwoFASetup) {
                 toast.success('Admin login successful. Please set up 2FA.');
                 router.push('/admin/settings/2fa');
-            } else if (!result?.requiresTwoFA) {
+            } else if (result?.requiresTwoFA) {
+                toast.success('2FA Required');
+                router.push('/auth/2fa');
+            } else {
                 toast.success('Welcome back! 🌿');
                 router.push(redirect);
             }

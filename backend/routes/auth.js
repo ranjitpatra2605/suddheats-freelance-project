@@ -69,23 +69,24 @@ router.post('/login', async (req, res) => {
 
         // Check if admin with 2FA enabled
         if (user.role === 'admin') {
-            if (user.twoFactorEnabled) {
+            if (!user.twoFactorSecret) {
+                console.log('⚠️ Admin without 2FA, prompting setup:', email);
+                return res.json({
+                    requiresTwoFASetup: true,
+                    requiresTwoFA: true,
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    token: generateToken(user.id)
+                });
+            } else {
                 const tempToken = generateTempToken(user.id);
                 console.log('🔑 2FA required for:', email);
                 return res.json({
                     requiresTwoFA: true,
                     tempSessionToken: tempToken,
                     message: 'Enter your authenticator code'
-                });
-            } else {
-                console.log('⚠️ Admin without 2FA, prompting setup:', email);
-                return res.json({
-                    requiresTwoFASetup: true,
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    token: generateToken(user.id)
                 });
             }
         }
