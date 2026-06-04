@@ -10,10 +10,18 @@ interface User {
     token: string;
 }
 
+export type LoginResponse = {
+    requiresTwoFA?: boolean;
+    tempSessionToken?: string;
+    token?: string;
+    user?: any;
+    message?: string;
+};
+
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<LoginResponse>;
     register: (name: string, email: string, password: string, phone?: string) => Promise<void>;
     logout: () => void;
     isAdmin: boolean;
