@@ -5,6 +5,15 @@ const dotenv = require('dotenv');
 const path = require('path');
 const os = require('os');
 
+// Process-level error handling for production stability
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
+});
+
 dotenv.config();
 
 const app = express();
@@ -78,24 +87,34 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'ShuddhEats API is running', timestamp: new Date().toISOString() });
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'Backend is live' });
+});
+
+// Global error handling middleware for production stability
+app.use((err, req, res, next) => {
+  console.error('🔥 Server Error:', err.message);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
+});
+
 // Connect Database and start server
 const PORT = process.env.PORT || 5000;
 
+// Lazy-connect Prisma: We no longer wrap app.listen inside $connect
+// This prevents the server from crashing if the DB is temporarily unavailable at startup
 prisma.$connect()
-  .then(() => {
-    console.log('✅ Database Connected');
+  .then(() => console.log('✅ Database Connected'))
+  .catch((err) => console.error('❌ Database connection error (App is still running):', err.message));
 
-    // Listen on 0.0.0.0 to accept connections from any device on the network
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`\n🚀 ShuddhEats Server running on:`);
-      console.log(`   - Local: http://localhost:${PORT}`);
-      console.log(`   - Network: http://${localIP}:${PORT}`);
-      console.log(`   - Health: http://localhost:${PORT}/api/health\n`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ Database connection error:', err.message);
-    process.exit(1);
-  });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🚀 ShuddhEats Server running on:`);
+  console.log(`   - Local: http://localhost:${PORT}`);
+  console.log(`   - Network: http://${localIP}:${PORT}`);
+  console.log(`   - Health: http://localhost:${PORT}/health\n`);
+});
 
 module.exports = app;
