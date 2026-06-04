@@ -9,10 +9,23 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const { category, search, sort, featured, bestseller } = req.query;
+
+        if (featured === 'true') {
+            const products = await Product.findMany({
+                where: { isFeatured: true }
+            });
+            return res.json(products);
+        }
+
+        if (bestseller === 'true') {
+            const products = await Product.findMany({
+                where: { isBestSeller: true }
+            });
+            return res.json(products);
+        }
+
         const filter = {};
         if (category) filter.category = category;
-        if (featured === 'true') filter.isFeatured = true;
-        if (bestseller === 'true') filter.isBestSeller = true;
         if (search) {
             filter.name = { contains: search, mode: 'insensitive' };
         }
