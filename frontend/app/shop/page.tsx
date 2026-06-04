@@ -477,22 +477,22 @@ function ShopContent() {
             }
 
             if (category && category !== 'All') {
-                filtered = filtered.filter(p => p.category?.toLowerCase() === category.toLowerCase());
+                filtered = filtered.filter((p: any) => p.category?.toLowerCase() === category.toLowerCase());
             }
             if (search) {
                 const query = search.toLowerCase().trim();
-                filtered = filtered.filter(p =>
+                filtered = filtered.filter((p: any) =>
                     p.name?.toLowerCase().includes(query) ||
                     (p.shortDescription && p.shortDescription.toLowerCase().includes(query)) ||
                     p.category?.toLowerCase().includes(query)
                 );
             }
             if (sort === 'price_asc') {
-                filtered.sort((a, b) => a.price - b.price);
+                filtered.sort((a: any, b: any) => a.price - b.price);
             } else if (sort === 'price_desc') {
-                filtered.sort((a, b) => b.price - a.price);
+                filtered.sort((a: any, b: any) => b.price - a.price);
             } else if (sort === 'rating') {
-                filtered.sort((a, b) => b.ratings - a.ratings);
+                filtered.sort((a: any, b: any) => b.ratings - a.ratings);
             }
 
             setProducts(filtered);
@@ -577,13 +577,13 @@ function ShopContent() {
                     </div>
                 ) : viewType === 'grid' ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 animate-fadeInUp">
-                        {products.map((p) => (
+                        {products.map((p: any) => (
                             <ProductCard key={p._id} product={p} />
                         ))}
                     </div>
                 ) : (
                     <div className="space-y-3 sm:space-y-4 animate-fadeInUp">
-                        {products.map((p) => (
+                        {products.map((p: any) => (
                             <div key={p._id} className="card p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 hover:shadow-lg transition-shadow">
                                 <div className="w-full sm:w-24 h-32 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-[#f0f4ed] flex items-center justify-center">
                                     <img src={p.thumbnail} alt={p.name} className="w-full h-full object-cover" />
