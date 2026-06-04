@@ -40,7 +40,7 @@ export default function AdminProductsPage() {
             const formData = new FormData();
             formData.append('image', file);
             const token = localStorage.getItem('shuddheats_token');
-            const res = await fetch('/api/upload/product-image', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/product-image`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData
