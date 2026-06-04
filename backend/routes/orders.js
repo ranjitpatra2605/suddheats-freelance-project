@@ -5,7 +5,6 @@ const Product = require('../models/Product');
 const { protect } = require('../middleware/auth');
 const { adminOnly } = require('../middleware/admin');
 const prisma = require('../models/db');
-const { mapIdToUnderscoreId } = require('../models/prismaHelper');
 
 const router = Router = express.Router();
 
@@ -46,8 +45,7 @@ router.post('/', protect, async (req, res) => {
             return newOrder;
         });
 
-        // Map database id to id for frontend compatibility
-        res.status(201).json(mapIdToUnderscoreId(order));
+        res.status(201).json(order);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

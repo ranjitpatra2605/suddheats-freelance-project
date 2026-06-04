@@ -48,8 +48,18 @@ const allowedOrigins = [
 console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: (origin, callback) => {
+    console.log(`[CORS] Incoming Origin: ${origin}`);
+    const allowed = [
+      'https://gracious-love-production-df0a.up.railway.app',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
+    ];
+    // For debugging: unconditionally return the requested origin 
+    // instead of wildcard so credentials work
+    callback(null, origin || '*'); 
+  },
+  credentials: true,
 }));
 
 app.options('*', cors());
