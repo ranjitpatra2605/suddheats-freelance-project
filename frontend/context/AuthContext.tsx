@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (email: string, password: string) => {
         try {
             console.log('🔐 Attempting login:', { email, hasPassword: !!password });
-            const { data } = await api.post('/auth/login', { email, password });
+            const { data } = await api.post('/api/auth/login', { email, password });
 
             if (data.requiresTwoFA) {
                 // Admin with 2FA enabled
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw new Error('No temp session token available');
         }
 
-        const { data } = await api.post('/auth/verify-2fa', {
+        const { data } = await api.post('/api/auth/verify-2fa', {
             tempSessionToken,
             totpCode
         });
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const register = async (name: string, email: string, password: string, phone?: string) => {
         try {
             console.log('📝 Attempting registration:', { name, email, phone, hasPassword: !!password });
-            const { data } = await api.post('/auth/register', { name, email, password, phone });
+            const { data } = await api.post('/api/auth/register', { name, email, password, phone });
             console.log('✅ Registration successful:', { _id: data._id, email: data.email, role: data.role });
             try {
                 if (typeof localStorage !== 'undefined') {
