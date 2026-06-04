@@ -27,7 +27,7 @@ router.post('/', protect, async (req, res) => {
             // Create order
             const newOrder = await tx.order.create({
                 data: {
-                    userId: req.user._id,
+                    userId: req.user.id,
                     items: items,
                     shippingAddress: shippingAddress,
                     itemsPrice: parseFloat(itemsPrice),
@@ -39,14 +39,14 @@ router.post('/', protect, async (req, res) => {
 
             // Clear cart
             await tx.cart.update({
-                where: { userId: req.user._id },
+                where: { userId: req.user.id },
                 data: { items: [] }
             });
 
             return newOrder;
         });
 
-        // Map database id to _id for frontend compatibility
+        // Map database id to id for frontend compatibility
         res.status(201).json(mapIdToUnderscoreId(order));
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -57,7 +57,7 @@ router.post('/', protect, async (req, res) => {
 router.get('/myorders', protect, async (req, res) => {
     try {
         const orders = await Order.findMany({
-            where: { userId: req.user._id },
+            where: { userId: req.user.id },
             orderBy: { createdAt: 'desc' }
         });
         res.json(orders);
@@ -70,9 +70,9 @@ router.get('/myorders', protect, async (req, res) => {
 router.get('/track/:id', async (req, res) => {
     try {
         const order = await Order.findUnique({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             select: {
-                _id: true,
+                id: true,
                 status: true,
                 items: true,
                 totalPrice: true,
@@ -93,11 +93,11 @@ router.get('/track/:id', async (req, res) => {
 router.get('/:id', protect, async (req, res) => {
     try {
         const order = await Order.findUnique({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             include: {
                 user: {
                     select: {
-                        _id: true,
+                        id: true,
                         name: true,
                         email: true
                     }
@@ -105,7 +105,7 @@ router.get('/:id', protect, async (req, res) => {
             }
         });
         if (!order) return res.status(404).json({ message: 'Order not found' });
-        if (order.userId !== req.user._id && req.user.role !== 'admin') {
+        if (order.userId !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Not authorized' });
         }
         res.json(order);
@@ -118,7 +118,7 @@ router.get('/:id', protect, async (req, res) => {
 router.put('/:id/pay', protect, async (req, res) => {
     try {
         const order = await Order.update({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             data: {
                 isPaid: true,
                 paidAt: new Date(),
@@ -128,7 +128,7 @@ router.put('/:id/pay', protect, async (req, res) => {
             include: {
                 user: {
                     select: {
-                        _id: true,
+                        id: true,
                         email: true,
                         phone: true
                     }
@@ -151,7 +151,7 @@ router.put('/:id/status', protect, adminOnly, async (req, res) => {
             updateData.deliveredAt = new Date();
         }
         const order = await Order.update({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             data: updateData
         });
         res.json(order);
@@ -167,7 +167,7 @@ router.get('/', protect, adminOnly, async (req, res) => {
             include: {
                 user: {
                     select: {
-                        _id: true,
+                        id: true,
                         name: true,
                         email: true
                     }

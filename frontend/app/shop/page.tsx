@@ -61,7 +61,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.8,
         "numReviews": 124,
-        "_id": "1"
+        "id": "1"
     },
     {
         "name": "Black Pepper & Himalayan Salt Makhana",
@@ -99,7 +99,7 @@ function ShopContent() {
         "isBestSeller": false,
         "ratings": 4.6,
         "numReviews": 89,
-        "_id": "2"
+        "id": "2"
     },
     {
         "name": "Pudina Makhana",
@@ -137,7 +137,7 @@ function ShopContent() {
         "isBestSeller": false,
         "ratings": 4.5,
         "numReviews": 65,
-        "_id": "3"
+        "id": "3"
     },
     {
         "name": "Peri Peri Makhana",
@@ -175,7 +175,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.7,
         "numReviews": 92,
-        "_id": "4"
+        "id": "4"
     },
     {
         "name": "Cream & Onion Makhana",
@@ -213,7 +213,7 @@ function ShopContent() {
         "isBestSeller": false,
         "ratings": 4.6,
         "numReviews": 75,
-        "_id": "5"
+        "id": "5"
     },
     {
         "name": "Beetroot Chips",
@@ -252,7 +252,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.7,
         "numReviews": 112,
-        "_id": "6"
+        "id": "6"
     },
     {
         "name": "Broccoli Chips",
@@ -292,7 +292,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.8,
         "numReviews": 98,
-        "_id": "7"
+        "id": "7"
     },
     {
         "name": "Ragi Chips",
@@ -331,7 +331,7 @@ function ShopContent() {
         "isBestSeller": false,
         "ratings": 4.6,
         "numReviews": 87,
-        "_id": "8"
+        "id": "8"
     },
     {
         "name": "Honey & Oats Cookies",
@@ -373,7 +373,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.9,
         "numReviews": 134,
-        "_id": "9"
+        "id": "9"
     },
     {
         "name": "Jowar & Nuts Cookies",
@@ -416,7 +416,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.8,
         "numReviews": 110,
-        "_id": "10"
+        "id": "10"
     },
     {
         "name": "Ragi & Elaichi Cookies",
@@ -459,7 +459,7 @@ function ShopContent() {
         "isBestSeller": true,
         "ratings": 4.7,
         "numReviews": 98,
-        "_id": "11"
+        "id": "11"
     }
 ];
 
@@ -578,13 +578,13 @@ function ShopContent() {
                 ) : viewType === 'grid' ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 animate-fadeInUp">
                         {products.map((p: any) => (
-                            <ProductCard key={p._id} product={p} />
+                            <ProductCard key={p.id} product={p} />
                         ))}
                     </div>
                 ) : (
                     <div className="space-y-3 sm:space-y-4 animate-fadeInUp">
                         {products.map((p: any) => (
-                            <div key={p._id} className="card p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 hover:shadow-lg transition-shadow">
+                            <div key={p.id} className="card p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 hover:shadow-lg transition-shadow">
                                 <div className="w-full sm:w-24 h-32 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-[#f0f4ed] flex items-center justify-center">
                                     <img src={p.thumbnail} alt={p.name} className="w-full h-full object-cover" />
                                 </div>

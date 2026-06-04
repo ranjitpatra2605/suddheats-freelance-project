@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import api from '@/lib/api';
 
 interface User {
-    _id: string;
+    id: string;
     name: string;
     email: string;
     role: string;
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
 
             // Normal login
-            console.log('✅ Login successful:', { _id: data._id, email: data.email, role: data.role });
+            console.log('✅ Login successful:', { id: data.id, email: data.email, role: data.role });
             try {
                 if (typeof localStorage !== 'undefined') {
                     localStorage.setItem('shuddheats_token', data.token);
@@ -114,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             console.log('📝 Attempting registration:', { name, email, phone, hasPassword: !!password });
             const { data } = await api.post('/auth/register', { name, email, password, phone });
-            console.log('✅ Registration successful:', { _id: data._id, email: data.email, role: data.role });
+            console.log('✅ Registration successful:', { id: data.id, email: data.email, role: data.role });
             try {
                 if (typeof localStorage !== 'undefined') {
                     localStorage.setItem('shuddheats_token', data.token);

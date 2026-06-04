@@ -10,7 +10,7 @@ interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   suggestedProducts?: Array<{
-    _id: string;
+    id: string;
     name: string;
     price: number;
     thumbnail: string;
@@ -322,7 +322,7 @@ export default function CartDrawer({
                   <div className="space-y-1.5 sm:space-y-2">
                     {suggestedProducts.slice(0, 3).map((product) => (
                       <Link
-                        key={product._id}
+                        key={product.id}
                         href={`/shop/${product.slug}`}
                         onClick={onClose}
                         className="flex items-center gap-2 p-1.5 sm:p-2 rounded-lg hover:bg-gray-50 border border-gray-100 transition-all duration-200 group"

@@ -35,7 +35,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const setNormalizedItems = (cartItems: any[]) => {
         const normalized = (cartItems || []).map(item => ({
             ...item,
-            product: typeof item.product === 'object' && item.product !== null ? item.product._id : item.product
+            product: typeof item.product === 'object' && item.product !== null ? item.product.id : item.product
         }));
         setItems(normalized);
     };

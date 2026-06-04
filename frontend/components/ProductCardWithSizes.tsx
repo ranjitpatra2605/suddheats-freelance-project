@@ -6,7 +6,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useCart } from '@/context/CartContext';
 
 interface Product {
-    _id: string;
+    id: string;
     name: string;
     slug: string;
     price: number;
@@ -99,7 +99,7 @@ export default function ProductCardWithSizes({ product }: { product: Product }) 
         setIsAdding(true);
         try {
             await addToCart(
-                product._id,
+                product.id,
                 product.name,
                 product.thumbnail,
                 price,

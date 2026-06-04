@@ -26,15 +26,15 @@ export default function InventoryPage() {
             } catch {
                 // Mock data fallback
                 setInventory([
-                    { _id: '1', name: 'Himalayan Pink Salt Makhana', sku: 'MAKH-001', stock: 150, minStock: 20, category: 'Makhana' },
-                    { _id: '2', name: 'Peri Peri Makhana', sku: 'MAKH-002', stock: 120, minStock: 20, category: 'Makhana' },
-                    { _id: '3', name: 'Butter & Herbs Makhana', sku: 'MAKH-003', stock: 90, minStock: 20, category: 'Makhana' },
-                    { _id: '4', name: 'Classic Salted Air Fried Chips', sku: 'CHIP-001', stock: 200, minStock: 30, category: 'Air Fried Chips' },
-                    { _id: '5', name: 'Masala Air Fried Chips', sku: 'CHIP-002', stock: 180, minStock: 30, category: 'Air Fried Chips' },
-                    { _id: '6', name: 'Beetroot & Spinach Chips', sku: 'CHIP-003', stock: 100, minStock: 25, category: 'Air Fried Chips' },
-                    { _id: '7', name: 'Protein Power Diet Mix', sku: 'MIX-001', stock: 80, minStock: 15, category: 'Diet Mix' },
-                    { _id: '8', name: 'Trail Mix Supreme', sku: 'MIX-002', stock: 60, minStock: 15, category: 'Diet Mix' },
-                    { _id: '9', name: 'Chaat Flavoured Roasted Mixture', sku: 'MIX-003', stock: 110, minStock: 20, category: 'Diet Mix' },
+                    { id: '1', name: 'Himalayan Pink Salt Makhana', sku: 'MAKH-001', stock: 150, minStock: 20, category: 'Makhana' },
+                    { id: '2', name: 'Peri Peri Makhana', sku: 'MAKH-002', stock: 120, minStock: 20, category: 'Makhana' },
+                    { id: '3', name: 'Butter & Herbs Makhana', sku: 'MAKH-003', stock: 90, minStock: 20, category: 'Makhana' },
+                    { id: '4', name: 'Classic Salted Air Fried Chips', sku: 'CHIP-001', stock: 200, minStock: 30, category: 'Air Fried Chips' },
+                    { id: '5', name: 'Masala Air Fried Chips', sku: 'CHIP-002', stock: 180, minStock: 30, category: 'Air Fried Chips' },
+                    { id: '6', name: 'Beetroot & Spinach Chips', sku: 'CHIP-003', stock: 100, minStock: 25, category: 'Air Fried Chips' },
+                    { id: '7', name: 'Protein Power Diet Mix', sku: 'MIX-001', stock: 80, minStock: 15, category: 'Diet Mix' },
+                    { id: '8', name: 'Trail Mix Supreme', sku: 'MIX-002', stock: 60, minStock: 15, category: 'Diet Mix' },
+                    { id: '9', name: 'Chaat Flavoured Roasted Mixture', sku: 'MIX-003', stock: 110, minStock: 20, category: 'Diet Mix' },
                 ]);
             } finally {
                 setFetching(false);
@@ -46,7 +46,7 @@ export default function InventoryPage() {
     const handleUpdateStock = async (id: string) => {
         try {
             await api.patch(`/admin/inventory/${id}`, { stock: parseInt(editStock) });
-            setInventory(inv => inv.map(item => item._id === id ? { ...item, stock: parseInt(editStock) } : item));
+            setInventory(inv => inv.map(item => item.id === id ? { ...item, stock: parseInt(editStock) } : item));
             setEditingId(null);
             setEditStock('');
         } catch (err) {
@@ -58,7 +58,7 @@ export default function InventoryPage() {
         if (!confirm('Are you sure you want to delete this product?')) return;
         try {
             await api.delete(`/admin/inventory/${id}`);
-            setInventory(inv => inv.filter(item => item._id !== id));
+            setInventory(inv => inv.filter(item => item.id !== id));
         } catch (err) {
             console.error('Error deleting item:', err);
         }
@@ -95,7 +95,7 @@ export default function InventoryPage() {
                                 <p className="text-sm text-orange-800">{lowStockItems.length} product(s) are below minimum stock level</p>
                                 <div className="mt-2 flex gap-2 flex-wrap">
                                     {lowStockItems.map(item => (
-                                        <span key={item._id} className="text-xs bg-orange-200 text-orange-900 px-2 py-1 rounded">
+                                        <span key={item.id} className="text-xs bg-orange-200 text-orange-900 px-2 py-1 rounded">
                                             {item.name}: {item.stock}/{item.minStock}
                                         </span>
                                     ))}
@@ -122,14 +122,14 @@ export default function InventoryPage() {
                             </thead>
                             <tbody>
                                 {inventory.map((item) => (
-                                    <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <p className="font-medium text-gray-900">{item.name}</p>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-600">{item.sku}</td>
                                         <td className="px-6 py-4 text-sm text-gray-600">{item.category}</td>
                                         <td className="px-6 py-4 text-center">
-                                            {editingId === item._id ? (
+                                            {editingId === item.id ? (
                                                 <input
                                                     type="number"
                                                     value={editStock}
@@ -154,10 +154,10 @@ export default function InventoryPage() {
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                {editingId === item._id ? (
+                                                {editingId === item.id ? (
                                                     <>
                                                         <button
-                                                            onClick={() => handleUpdateStock(item._id)}
+                                                            onClick={() => handleUpdateStock(item.id)}
                                                             className="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                                                         >
                                                             Save
@@ -172,13 +172,13 @@ export default function InventoryPage() {
                                                 ) : (
                                                     <>
                                                         <button
-                                                            onClick={() => { setEditingId(item._id); setEditStock(item.stock.toString()); }}
+                                                            onClick={() => { setEditingId(item.id); setEditStock(item.stock.toString()); }}
                                                             className="text-gray-500 hover:text-blue-500"
                                                         >
                                                             <Edit2 className="w-4 h-4" />
                                                         </button>
                                                         <button
-                                                            onClick={() => handleDeleteProduct(item._id)}
+                                                            onClick={() => handleDeleteProduct(item.id)}
                                                             className="text-gray-500 hover:text-red-500"
                                                         >
                                                             <Trash2 className="w-4 h-4" />

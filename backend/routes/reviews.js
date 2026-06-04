@@ -12,13 +12,13 @@ router.post('/', protect, async (req, res) => {
         const ratingInt = parseInt(rating, 10);
 
         const existing = await Review.findFirst({
-            where: { userId: req.user._id, productId: productId }
+            where: { userId: req.user.id, productId: productId }
         });
         if (existing) return res.status(400).json({ message: 'You already reviewed this product' });
 
         const review = await Review.create({
             data: {
-                userId: req.user._id,
+                userId: req.user.id,
                 productId: productId,
                 name: req.user.name,
                 rating: ratingInt,
@@ -30,7 +30,7 @@ router.post('/', protect, async (req, res) => {
         const reviews = await Review.findMany({ where: { productId } });
         const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
         await Product.update({
-            where: { _id: productId },
+            where: { id: productId },
             data: {
                 ratings: parseFloat(avgRating.toFixed(1)),
                 numReviews: reviews.length

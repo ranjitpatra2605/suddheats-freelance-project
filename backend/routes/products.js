@@ -75,7 +75,7 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
         if (data.isBestSeller !== undefined) data.isBestSeller = data.isBestSeller === 'true' || data.isBestSeller === true;
 
         const product = await Product.update({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             data: data
         });
         res.json(product);
@@ -87,7 +87,7 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
 // @DELETE /api/products/:id — admin only
 router.delete('/:id', protect, adminOnly, async (req, res) => {
     try {
-        await Product.delete({ where: { _id: req.params.id } });
+        await Product.delete({ where: { id: req.params.id } });
         res.json({ message: 'Product deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });

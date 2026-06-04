@@ -13,11 +13,11 @@ const populateCartItems = async (cart) => {
 
     const productIds = items.map(item => item.product).filter(Boolean);
     const products = await Product.findMany({
-        where: { _id: { in: productIds } },
-        select: { _id: true, name: true, price: true, thumbnail: true, slug: true, stock: true }
+        where: { id: { in: productIds } },
+        select: { id: true, name: true, price: true, thumbnail: true, slug: true, stock: true }
     });
 
-    const productMap = new Map(products.map(p => [p._id, p]));
+    const productMap = new Map(products.map(p => [p.id, p]));
     const populatedItems = items.map(item => ({
         ...item,
         product: productMap.get(item.product) || null
@@ -32,7 +32,7 @@ const populateCartItems = async (cart) => {
 // @GET /api/cart — get user cart
 router.get('/', protect, async (req, res) => {
     try {
-        let cart = await Cart.findUnique({ where: { userId: req.user._id } });
+        let cart = await Cart.findUnique({ where: { userId: req.user.id } });
         if (!cart) {
             return res.json({ items: [] });
         }
@@ -48,13 +48,13 @@ router.get('/', protect, async (req, res) => {
 router.post('/', protect, async (req, res) => {
     try {
         const { productId, quantity } = req.body;
-        const product = await Product.findUnique({ where: { _id: productId } });
+        const product = await Product.findUnique({ where: { id: productId } });
         if (!product) return res.status(404).json({ message: 'Product not found' });
 
-        let cart = await Cart.findUnique({ where: { userId: req.user._id } });
+        let cart = await Cart.findUnique({ where: { userId: req.user.id } });
         if (!cart) {
             cart = await Cart.create({
-                data: { userId: req.user._id, items: [] }
+                data: { userId: req.user.id, items: [] }
             });
         }
 
@@ -78,7 +78,7 @@ router.post('/', protect, async (req, res) => {
         }
 
         const updatedCart = await Cart.update({
-            where: { _id: cart._id },
+            where: { id: cart.id },
             data: { items }
         });
 
@@ -93,7 +93,7 @@ router.post('/', protect, async (req, res) => {
 router.post('/update-options', protect, async (req, res) => {
     try {
         const { productId, weight, packaging, price } = req.body;
-        let cart = await Cart.findUnique({ where: { userId: req.user._id } });
+        let cart = await Cart.findUnique({ where: { userId: req.user.id } });
         if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
         const items = Array.isArray(cart.items) ? cart.items : [];
@@ -104,7 +104,7 @@ router.post('/update-options', protect, async (req, res) => {
             items[itemIndex].price = price;
             
             const updatedCart = await Cart.update({
-                where: { _id: cart._id },
+                where: { id: cart.id },
                 data: { items }
             });
 
@@ -121,14 +121,14 @@ router.post('/update-options', protect, async (req, res) => {
 // @DELETE /api/cart/:productId — remove item
 router.delete('/:productId', protect, async (req, res) => {
     try {
-        const cart = await Cart.findUnique({ where: { userId: req.user._id } });
+        const cart = await Cart.findUnique({ where: { userId: req.user.id } });
         if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
         const items = Array.isArray(cart.items) ? cart.items : [];
         const filteredItems = items.filter(i => i.product !== req.params.productId);
 
         const updatedCart = await Cart.update({
-            where: { _id: cart._id },
+            where: { id: cart.id },
             data: { items: filteredItems }
         });
 
@@ -143,9 +143,9 @@ router.delete('/:productId', protect, async (req, res) => {
 router.delete('/', protect, async (req, res) => {
     try {
         await Cart.upsert({
-            where: { userId: req.user._id },
+            where: { userId: req.user.id },
             update: { items: [] },
-            create: { userId: req.user._id, items: [] }
+            create: { userId: req.user.id, items: [] }
         });
         res.json({ message: 'Cart cleared' });
     } catch (err) {

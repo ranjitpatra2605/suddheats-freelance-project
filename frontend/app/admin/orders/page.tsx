@@ -29,7 +29,7 @@ function CustomerDetailsModal({ order, onClose }: { order: any; onClose: () => v
                 </div>
                 {/* Order ID strip */}
                 <div className="px-6 py-2 text-xs font-mono font-bold" style={{ background: '#f0f4ed', color: '#475d2a' }}>
-                    Order #{order._id.slice(-6).toUpperCase()}
+                    Order #{order.id.slice(-6).toUpperCase()}
                 </div>
                 {/* Body */}
                 <div className="px-6 py-5 space-y-4">
@@ -105,8 +105,8 @@ export default function AdminOrdersPage() {
 
     const load = () => {
         api.get('/admin/orders').then(r => setOrders(r.data)).catch(() => setOrders([
-            { _id: 'ord1abc', user: { name: 'Priya Sharma', email: 'priya@example.com' }, totalPrice: 437, status: 'Processing', isPaid: true, createdAt: new Date().toISOString(), items: [{ name: 'Himalayan Makhana', quantity: 2, price: 199 }, { name: 'Air Fried Chips', quantity: 1, price: 89 }], shippingAddress: { fullName: 'Priya Sharma', phone: '9876543210', addressLine1: '12 MG Road', city: 'Mumbai', state: 'Maharashtra', pincode: '400001' } },
-            { _id: 'ord2def', user: { name: 'Rahul Gupta', email: 'rahul@example.com' }, totalPrice: 249, status: 'Delivered', isPaid: true, createdAt: new Date().toISOString(), items: [{ name: 'Protein Diet Mix', quantity: 1, price: 249 }], shippingAddress: { fullName: 'Rahul Gupta', phone: '9123456789', addressLine1: '45 Park St', city: 'Kolkata', state: 'West Bengal', pincode: '700016' } },
+            { id: 'ord1abc', user: { name: 'Priya Sharma', email: 'priya@example.com' }, totalPrice: 437, status: 'Processing', isPaid: true, createdAt: new Date().toISOString(), items: [{ name: 'Himalayan Makhana', quantity: 2, price: 199 }, { name: 'Air Fried Chips', quantity: 1, price: 89 }], shippingAddress: { fullName: 'Priya Sharma', phone: '9876543210', addressLine1: '12 MG Road', city: 'Mumbai', state: 'Maharashtra', pincode: '400001' } },
+            { id: 'ord2def', user: { name: 'Rahul Gupta', email: 'rahul@example.com' }, totalPrice: 249, status: 'Delivered', isPaid: true, createdAt: new Date().toISOString(), items: [{ name: 'Protein Diet Mix', quantity: 1, price: 249 }], shippingAddress: { fullName: 'Rahul Gupta', phone: '9123456789', addressLine1: '45 Park St', city: 'Kolkata', state: 'West Bengal', pincode: '700016' } },
         ])).finally(() => setFetching(false));
     };
     useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
@@ -114,7 +114,7 @@ export default function AdminOrdersPage() {
     const updateStatus = async (orderId: string, status: string) => {
         try {
             await api.put(`/admin/orders/${orderId}/status`, { status });
-            setOrders(o => o.map(ord => ord._id === orderId ? { ...ord, status } : ord));
+            setOrders(o => o.map(ord => ord.id === orderId ? { ...ord, status } : ord));
             toast.success('Order status updated!');
         } catch { toast.error('Error updating status'); }
     };
@@ -148,12 +148,12 @@ export default function AdminOrdersPage() {
                 ) : (
                     <div className="space-y-4">
                         {filtered.map(order => (
-                            <div key={order._id} className="card p-5">
+                            <div key={order.id} className="card p-5">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="flex items-start gap-4">
                                         <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shrink-0"
                                             style={{ background: '#475d2a', fontSize: '0.7rem' }}>
-                                            #{order._id.slice(-4).toUpperCase()}
+                                            #{order.id.slice(-4).toUpperCase()}
                                         </div>
                                         <div>
                                             <p className="font-bold" style={{ color: '#475d2a' }}>{order.user?.name || 'N/A'}</p>
@@ -180,7 +180,7 @@ export default function AdminOrdersPage() {
                                             style={{ borderColor: '#475d2a', color: '#475d2a', background: '#f0f4ed' }}>
                                             Details
                                         </button>
-                                        <select value={order.status} onChange={e => updateStatus(order._id, e.target.value)}
+                                        <select value={order.status} onChange={e => updateStatus(order.id, e.target.value)}
                                             className="px-3 py-2 rounded-xl border-2 border-[#f0f4ed] text-sm font-semibold focus:outline-none focus:border-[#475d2a] transition-colors"
                                             style={{ background: STATUS_COLORS[order.status], color: STATUS_TEXT[order.status] }}>
                                             {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}

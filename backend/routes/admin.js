@@ -24,7 +24,7 @@ router.get('/dashboard', async (req, res) => {
             include: {
                 user: {
                     select: {
-                        _id: true,
+                        id: true,
                         name: true,
                         email: true
                     }
@@ -56,7 +56,7 @@ router.get('/orders', async (req, res) => {
             include: {
                 user: {
                     select: {
-                        _id: true,
+                        id: true,
                         name: true,
                         email: true
                     }
@@ -75,7 +75,7 @@ router.get('/users', async (req, res) => {
     try {
         const users = await User.findMany({
             select: {
-                _id: true,
+                id: true,
                 name: true,
                 email: true,
                 role: true,
@@ -96,7 +96,7 @@ router.get('/inventory', async (req, res) => {
     try {
         const products = await Product.findMany({
             select: {
-                _id: true,
+                id: true,
                 name: true,
                 category: true,
                 stock: true,
@@ -116,7 +116,7 @@ router.patch('/inventory/:id', async (req, res) => {
     try {
         const stock = parseInt(req.body.stock, 10);
         const product = await Product.update({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             data: { stock: stock }
         });
         res.json(product);
@@ -129,7 +129,7 @@ router.patch('/inventory/:id', async (req, res) => {
 router.delete('/inventory/:id', async (req, res) => {
     try {
         const product = await Product.delete({
-            where: { _id: req.params.id }
+            where: { id: req.params.id }
         });
         res.json({ message: 'Product deleted successfully', product });
     } catch (err) {
@@ -147,7 +147,7 @@ router.put('/orders/:id/status', async (req, res) => {
             updateData.deliveredAt = new Date();
         }
         const order = await Order.update({
-            where: { _id: req.params.id },
+            where: { id: req.params.id },
             data: updateData
         });
         res.json(order);

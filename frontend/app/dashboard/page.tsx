@@ -116,7 +116,7 @@ export default function DashboardPage() {
         // Mock detailed orders
         const mockOrders = [
             {
-                _id: 'ORD-849204',
+                id: 'ORD-849204',
                 createdAt: '2026-03-10T14:32:00.000Z',
                 status: 'Delivered',
                 totalPrice: 496,
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                 ]
             },
             {
-                _id: 'ORD-729482',
+                id: 'ORD-729482',
                 createdAt: '2026-03-05T09:15:00.000Z',
                 status: 'Shipped',
                 totalPrice: 298,
@@ -137,7 +137,7 @@ export default function DashboardPage() {
                 ]
             },
             {
-                _id: 'ORD-619204',
+                id: 'ORD-619204',
                 createdAt: '2026-02-28T18:45:00.000Z',
                 status: 'Processing',
                 totalPrice: 657,
@@ -314,7 +314,7 @@ export default function DashboardPage() {
                                     const StatusIcon = statusStyle.icon;
                                     return (
                                         <div 
-                                            key={order._id}
+                                            key={order.id}
                                             className="card border border-gray-100/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] bg-white rounded-2xl p-5 sm:p-6 hover:shadow-[0_12px_30px_-6px_rgba(71,93,42,0.06)] hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden"
                                         >
                                             {/* Header Bar */}
@@ -369,13 +369,13 @@ export default function DashboardPage() {
                                                         <div>
                                                             <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</p>
                                                             <div className="flex items-center gap-1.5 mt-0.5">
-                                                                <span className="font-mono text-xs font-bold text-gray-700 truncate max-w-[120px]">{order._id}</span>
+                                                                <span className="font-mono text-xs font-bold text-gray-700 truncate max-w-[120px]">{order.id}</span>
                                                                 <button 
-                                                                    onClick={() => handleCopy(order._id, order._id, 'Order ID')}
+                                                                    onClick={() => handleCopy(order.id, order.id, 'Order ID')}
                                                                     className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400 hover:text-[#475d2a] cursor-pointer"
                                                                     title="Copy Order ID"
                                                                 >
-                                                                    {copiedId === order._id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                                                                    {copiedId === order.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -409,7 +409,7 @@ export default function DashboardPage() {
                                                     {/* Direct Track Button */}
                                                     <div className="mt-4 pt-2">
                                                         <Link 
-                                                            href={`/track?id=${order._id}`}
+                                                            href={`/track?id=${order.id}`}
                                                             className="w-full btn-primary text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 shadow-sm hover:shadow hover:scale-102 transition-all duration-200 block text-center font-bold"
                                                         >
                                                             Track Order <ExternalLink className="w-3.5 h-3.5" />

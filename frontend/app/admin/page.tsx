@@ -21,8 +21,8 @@ export default function AdminDashboard() {
         api.get('/admin/dashboard').then(r => setStats(r.data)).catch(() => {
             setStats({
                 totalOrders: 12, totalProducts: 9, totalUsers: 47, totalRevenue: 8940, recentOrders: [
-                    { _id: 'ord1', user: { name: 'Priya Sharma', email: 'priya@example.com' }, totalPrice: 437, status: 'Processing', isPaid: true, createdAt: new Date().toISOString() },
-                    { _id: 'ord2', user: { name: 'Rahul Gupta', email: 'rahul@example.com' }, totalPrice: 199, status: 'Shipped', isPaid: true, createdAt: new Date().toISOString() },
+                    { id: 'ord1', user: { name: 'Priya Sharma', email: 'priya@example.com' }, totalPrice: 437, status: 'Processing', isPaid: true, createdAt: new Date().toISOString() },
+                    { id: 'ord2', user: { name: 'Rahul Gupta', email: 'rahul@example.com' }, totalPrice: 199, status: 'Shipped', isPaid: true, createdAt: new Date().toISOString() },
                 ]
             });
         }).finally(() => setFetching(false));
@@ -112,8 +112,8 @@ export default function AdminDashboard() {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {stats.recentOrders.map((order: any) => (
-                                    <tr key={order._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-3 sm:px-4 py-2.5 sm:py-4 font-mono text-xs text-gray-500">{order._id.slice(-8)}</td>
+                                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-3 sm:px-4 py-2.5 sm:py-4 font-mono text-xs text-gray-500">{order.id.slice(-8)}</td>
                                         <td className="px-3 sm:px-4 py-2.5 sm:py-4">
                                             <p className="font-medium text-xs sm:text-sm line-clamp-1">{order.user?.name || 'N/A'}</p>
                                             <p className="text-xs text-gray-400 line-clamp-1">{order.user?.email}</p>

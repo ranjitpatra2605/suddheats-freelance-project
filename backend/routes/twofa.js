@@ -21,7 +21,7 @@ const generateBackupCodes = () => {
 // Generate TOTP secret and QR code for admin to scan
 router.post('/setup', protect, adminOnly, async (req, res) => {
     try {
-        const user = await User.findUnique({ where: { _id: req.user._id } });
+        const user = await User.findUnique({ where: { id: req.user.id } });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Generate secret
@@ -76,7 +76,7 @@ router.post('/verify-setup', protect, adminOnly, async (req, res) => {
         const backupCodes = generateBackupCodes();
 
         await User.update({
-            where: { _id: req.user._id },
+            where: { id: req.user.id },
             data: {
                 twoFactorEnabled: true,
                 twoFactorSecret: secret,
@@ -104,7 +104,7 @@ router.post('/disable', protect, adminOnly, async (req, res) => {
             return res.status(400).json({ message: 'Password required' });
         }
 
-        const user = await User.findUnique({ where: { _id: req.user._id } });
+        const user = await User.findUnique({ where: { id: req.user.id } });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Verify password
@@ -115,7 +115,7 @@ router.post('/disable', protect, adminOnly, async (req, res) => {
 
         // Disable 2FA
         await User.update({
-            where: { _id: req.user._id },
+            where: { id: req.user.id },
             data: {
                 twoFactorEnabled: false,
                 twoFactorSecret: null,
@@ -152,7 +152,7 @@ router.post('/verify', async (req, res) => {
         if (backupCodeIndex !== -1) {
             backupCodesArray.splice(backupCodeIndex, 1);
             await User.update({
-                where: { _id: user._id },
+                where: { id: user.id },
                 data: { backupCodes: backupCodesArray }
             });
             return res.json({

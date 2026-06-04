@@ -21,7 +21,7 @@ export default function TrackPage() {
             // Mock order for demo
             if (id.startsWith('MOCK-') || id.startsWith('ORD-')) {
                 setOrder({
-                    _id: id,
+                    id: id,
                     status: 'Processing',
                     createdAt: new Date().toISOString(),
                     isPaid: true,
@@ -83,7 +83,7 @@ export default function TrackPage() {
                             <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <p className="text-xs text-gray-400 font-mono">ORDER ID</p>
-                                    <p className="font-bold" style={{ color: '#475d2a' }}>{order._id}</p>
+                                    <p className="font-bold" style={{ color: '#475d2a' }}>{order.id}</p>
                                 </div>
                                 <span className={`badge ${order.status === 'Delivered' ? '' : order.status === 'Cancelled' ? '' : 'badge-primary'}`}
                                     style={order.status === 'Delivered' ? { background: '#d1fae5', color: '#065f46' } : order.status === 'Cancelled' ? { background: '#fee2e2', color: '#991b1b' } : {}}>

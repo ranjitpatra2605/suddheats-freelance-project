@@ -30,14 +30,14 @@ router.post('/register', async (req, res) => {
         const user = await User.create({
             data: { name, email, password: hashedPassword, phone }
         });
-        console.log('✅ User registered:', { _id: user._id, email: user.email });
+        console.log('✅ User registered:', { id: user.id, email: user.email });
 
         res.status(201).json({
-            _id: user._id,
+            id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id)
+            token: generateToken(user.id)
         });
     } catch (err) {
         console.error('❌ Register error:', err.message);
@@ -65,11 +65,11 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        console.log('✅ Login successful:', { _id: user._id, email: user.email, role: user.role });
+        console.log('✅ Login successful:', { id: user.id, email: user.email, role: user.role });
 
         // Check if admin with 2FA enabled
         if (user.role === 'admin' && user.twoFactorEnabled) {
-            const tempToken = generateTempToken(user._id);
+            const tempToken = generateTempToken(user.id);
             console.log('🔑 2FA required for:', email);
             return res.json({
                 requiresTwoFA: true,
@@ -80,11 +80,11 @@ router.post('/login', async (req, res) => {
 
         // Normal login (user or admin without 2FA)
         res.json({
-            _id: user._id,
+            id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id)
+            token: generateToken(user.id)
         });
     } catch (err) {
         console.error('❌ Login error:', err.message);
@@ -114,7 +114,7 @@ router.post('/verify-2fa', async (req, res) => {
         }
 
         // Get user
-        const user = await User.findUnique({ where: { _id: decoded.id } });
+        const user = await User.findUnique({ where: { id: decoded.id } });
         if (!user || !user.twoFactorEnabled) {
             return res.status(401).json({ message: 'Invalid 2FA setup' });
         }
@@ -126,15 +126,15 @@ router.post('/verify-2fa', async (req, res) => {
             // Valid backup code, remove it (single use)
             backupCodesArray.splice(backupCodeIndex, 1);
             const updatedUser = await User.update({
-                where: { _id: user._id },
+                where: { id: user.id },
                 data: { backupCodes: backupCodesArray }
             });
             return res.json({
-                _id: updatedUser._id,
+                id: updatedUser.id,
                 name: updatedUser.name,
                 email: updatedUser.email,
                 role: updatedUser.role,
-                token: generateToken(updatedUser._id),
+                token: generateToken(updatedUser.id),
                 message: 'Login successful with backup code'
             });
         }
@@ -153,11 +153,11 @@ router.post('/verify-2fa', async (req, res) => {
 
         // Return JWT token
         res.json({
-            _id: user._id,
+            id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id)
+            token: generateToken(user.id)
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -167,7 +167,7 @@ router.post('/verify-2fa', async (req, res) => {
 // @GET /api/auth/profile
 router.get('/profile', protect, async (req, res) => {
     try {
-        const user = await User.findUnique({ where: { _id: req.user._id } });
+        const user = await User.findUnique({ where: { id: req.user.id } });
         if (!user) return res.status(404).json({ message: 'User not found' });
         const { password, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
@@ -179,7 +179,7 @@ router.get('/profile', protect, async (req, res) => {
 // @PUT /api/auth/profile
 router.put('/profile', protect, async (req, res) => {
     try {
-        const user = await User.findUnique({ where: { _id: req.user._id } });
+        const user = await User.findUnique({ where: { id: req.user.id } });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const updateData = {
@@ -191,16 +191,16 @@ router.put('/profile', protect, async (req, res) => {
         }
 
         const updated = await User.update({
-            where: { _id: req.user._id },
+            where: { id: req.user.id },
             data: updateData
         });
 
         res.json({
-            _id: updated._id,
+            id: updated.id,
             name: updated.name,
             email: updated.email,
             role: updated.role,
-            token: generateToken(updated._id)
+            token: generateToken(updated.id)
         });
     } catch (err) {
         res.status(500).json({ message: err.message });

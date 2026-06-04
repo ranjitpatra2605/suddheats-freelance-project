@@ -63,7 +63,7 @@ export default function AdminProductsPage() {
         const payload = { ...form, price: Number(form.price), originalPrice: Number(form.originalPrice) || 0, stock: Number(form.stock) };
         if (!payload.slug) payload.slug = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         try {
-            if (editing) await api.put(`/products/${editing._id}`, payload);
+            if (editing) await api.put(`/products/${editing.id}`, payload);
             else await api.post('/products', payload);
             toast.success(editing ? 'Product updated!' : 'Product created!');
             setModal(false); loadProducts();
@@ -100,7 +100,7 @@ export default function AdminProductsPage() {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {products.map(p => (
-                                    <tr key={p._id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 py-4 flex items-center gap-3">
                                             <img src={p.thumbnail} alt={p.name} className="w-10 h-10 object-cover rounded-lg" />
                                             <div>
@@ -114,7 +114,7 @@ export default function AdminProductsPage() {
                                         <td className="px-4 py-4">
                                             <div className="flex gap-2">
                                                 <button onClick={() => openEdit(p)} className="p-2 rounded-lg hover:bg-[#f0f4ed] transition-colors"><Edit className="w-4 h-4" style={{ color: '#475d2a' }} /></button>
-                                                <button onClick={() => handleDelete(p._id, p.name)} className="p-2 rounded-lg hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                                                <button onClick={() => handleDelete(p.id, p.name)} className="p-2 rounded-lg hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
                                             </div>
                                         </td>
                                     </tr>

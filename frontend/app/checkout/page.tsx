@@ -234,7 +234,7 @@ export default function CheckoutPage() {
                     totalPrice: total,
                     paymentMethod: 'Mock'
                 });
-                backendOrderId = order._id;
+                backendOrderId = order.id;
 
             } catch { /* fallback to mock ID */ }
             clearCart();

@@ -1,3 +1,3 @@
 const prisma = require('./db');
-const { wrapModel } = require('./prismaHelper');
-module.exports = wrapModel(prisma.review);
+module.exports = prisma.review;
+
