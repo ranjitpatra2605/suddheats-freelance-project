@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
     const setMockData = () => {
         const mockProducts = [
-            { name: 'Himalayan Pink Salt Makhana', purchases: 5, quantity: 15, price: 99, thumbnail: '/images/products/himalayan-salt-makhana.svg', lastBought: '2026-03-10' },
+            { name: 'Himalayan Pink Salt Makhana', purchases: 5, quantity: 15, price: 99, thumbnail: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg', lastBought: '2026-03-10' },
             { name: 'Vegetable Chips', purchases: 3, quantity: 9, price: 149, thumbnail: '/images/products/vegetable-chips.svg', lastBought: '2026-03-05' },
             { name: 'Protein Power Diet Mix', purchases: 2, quantity: 6, price: 179, thumbnail: '/images/products/millet-cookies.svg', lastBought: '2026-02-28' },
         ];
@@ -122,7 +122,7 @@ export default function DashboardPage() {
                 totalPrice: 496,
                 trackingId: 'AWB-7492049102',
                 items: [
-                    { name: 'Himalayan Pink Salt Makhana', quantity: 3, price: 99, weight: 75, packaging: 'pouch', image: '/images/products/himalayan-salt-makhana.svg' },
+                    { name: 'Himalayan Pink Salt Makhana', quantity: 3, price: 99, weight: 75, packaging: 'pouch', image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg' },
                     { name: 'Vegetable Chips', quantity: 1, price: 149, weight: 100, packaging: 'jar', image: '/images/products/vegetable-chips.svg' }
                 ]
             },
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 totalPrice: 298,
                 trackingId: 'AWB-5920481024',
                 items: [
-                    { name: 'Vegetable Chips', quantity: 2, price: 149, weight: 100, packaging: 'pouch', image: '/images/products/vegetable-chips.svg' }
+                    { name: 'Vegetable Chips', quantity: 2, price: 149, weight: 100, packaging: 'pouch', image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563581/shuddheats/products/broccoli-chips.jpg' }
                 ]
             },
             {
@@ -143,8 +143,8 @@ export default function DashboardPage() {
                 totalPrice: 657,
                 trackingId: null,
                 items: [
-                    { name: 'Protein Power Diet Mix', quantity: 3, price: 179, weight: 100, packaging: 'jar', image: '/images/products/millet-cookies.svg' },
-                    { name: 'Himalayan Pink Salt Makhana', quantity: 1, price: 99, weight: 35, packaging: 'pouch', image: '/images/products/himalayan-salt-makhana.svg' }
+                    { name: 'Protein Power Diet Mix', quantity: 3, price: 179, weight: 100, packaging: 'jar', image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563587/shuddheats/products/jowar-nuts-cookies.jpg' },
+                    { name: 'Himalayan Pink Salt Makhana', quantity: 1, price: 99, weight: 35, packaging: 'pouch', image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg' }
                 ]
             }
         ];
@@ -171,7 +171,7 @@ export default function DashboardPage() {
             await addToCart(
                 item.product || item.productId || 'mock-id',
                 item.name,
-                item.image || item.thumbnail || '/images/products/himalayan-salt-makhana.svg',
+                item.image || item.thumbnail || 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg',
                 item.price,
                 1,
                 {
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                                                         <div key={idx} className="flex gap-3 items-center bg-gray-50/50 hover:bg-gray-50 p-2 rounded-xl transition-all duration-200 border border-gray-100/50">
                                                             <div className="h-12 w-12 rounded-lg bg-white overflow-hidden flex-shrink-0 flex items-center justify-center p-1 border border-gray-100">
                                                                 <img 
-                                                                    src={item.image || '/images/products/himalayan-salt-makhana.svg'} 
+                                                                    src={item.image || 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg'} 
                                                                     alt={item.name} 
                                                                     className="h-full w-full object-contain" 
                                                                 />
@@ -447,7 +447,7 @@ export default function DashboardPage() {
                                         <div key={idx} className="flex gap-3 items-center bg-gray-50/50 p-2.5 rounded-xl border border-gray-100/50">
                                             <div className="h-10 w-10 rounded-lg bg-white overflow-hidden flex-shrink-0 flex items-center justify-center p-1 border border-gray-100">
                                                 <img 
-                                                    src={product.thumbnail || '/images/products/himalayan-salt-makhana.svg'} 
+                                                    src={product.thumbnail || 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg'} 
                                                     alt={product.name} 
                                                     className="h-full w-full object-contain" 
                                                 />

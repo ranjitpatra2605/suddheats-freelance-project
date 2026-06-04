@@ -191,7 +191,7 @@ export default function Navbar() {
                             {/* ── Logo ── */}
                             <Link href="/" className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity">
                                 <Image
-                                    src="/images/logo-shuddheats.png"
+                                    src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563575/shuddheats/assets/logo-shuddheats.png"
                                     alt="Shuddh Eats Logo"
                                     width={130}
                                     height={44}

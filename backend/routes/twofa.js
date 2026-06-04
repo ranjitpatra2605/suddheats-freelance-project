@@ -21,7 +21,8 @@ const generateBackupCodes = () => {
 // Generate TOTP secret and QR code for admin to scan
 router.post('/setup', protect, adminOnly, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
+        const user = await User.findUnique({ where: { _id: req.user._id } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Generate secret
         const secret = speakeasy.generateSecret({
@@ -72,13 +73,16 @@ router.post('/verify-setup', protect, adminOnly, async (req, res) => {
         }
 
         // Save to database
-        const user = await User.findById(req.user._id);
         const backupCodes = generateBackupCodes();
 
-        user.twoFactorEnabled = true;
-        user.twoFactorSecret = secret;
-        user.backupCodes = backupCodes;
-        await user.save();
+        await User.update({
+            where: { _id: req.user._id },
+            data: {
+                twoFactorEnabled: true,
+                twoFactorSecret: secret,
+                backupCodes: backupCodes
+            }
+        });
 
         res.json({
             success: true,
@@ -100,23 +104,77 @@ router.post('/disable', protect, adminOnly, async (req, res) => {
             return res.status(400).json({ message: 'Password required' });
         }
 
-        const user = await User.findById(req.user._id);
+        const user = await User.findUnique({ where: { _id: req.user._id } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Verify password
-        const isPasswordValid = await user.comparePassword(password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
         // Disable 2FA
-        user.twoFactorEnabled = false;
-        user.twoFactorSecret = null;
-        user.backupCodes = [];
-        await user.save();
+        await User.update({
+            where: { _id: req.user._id },
+            data: {
+                twoFactorEnabled: false,
+                twoFactorSecret: null,
+                backupCodes: []
+            }
+        });
 
         res.json({
             success: true,
             message: '2FA disabled successfully'
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// @POST /api/twofa/verify
+// Verify 2FA code during login
+router.post('/verify', async (req, res) => {
+    try {
+        const { email, totpCode } = req.body;
+        if (!email || !totpCode) {
+            return res.status(400).json({ message: 'Email and TOTP code required' });
+        }
+
+        const user = await User.findUnique({ where: { email } });
+        if (!user || !user.twoFactorEnabled) {
+            return res.status(400).json({ message: '2FA is not enabled for this user' });
+        }
+
+        // Check if it's a backup code
+        const backupCodesArray = Array.isArray(user.backupCodes) ? user.backupCodes : [];
+        const backupCodeIndex = backupCodesArray.indexOf(totpCode.toUpperCase());
+        if (backupCodeIndex !== -1) {
+            backupCodesArray.splice(backupCodeIndex, 1);
+            await User.update({
+                where: { _id: user._id },
+                data: { backupCodes: backupCodesArray }
+            });
+            return res.json({
+                success: true,
+                message: 'Verified successfully using backup code'
+            });
+        }
+
+        const verified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: totpCode,
+            window: 2
+        });
+
+        if (!verified) {
+            return res.status(401).json({ message: 'Invalid authenticator code' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Verified successfully'
         });
     } catch (err) {
         res.status(500).json({ message: err.message });

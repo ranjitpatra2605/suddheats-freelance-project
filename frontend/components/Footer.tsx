@@ -11,7 +11,7 @@ export default function Footer() {
                     <div className="col-span-1 sm:col-span-2 lg:col-span-1">
                         <div className="h-24 w-24 rounded-full overflow-hidden flex items-center justify-center mb-6" style={{ background: 'rgba(255,255,255,0.95)' }}>
                             <Image
-                                src="/images/logo-se-circle.png"
+                                src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563574/shuddheats/assets/logo-se-circle.png"
                                 alt="ShuddhEats Logo"
                                 width={96}
                                 height={96}

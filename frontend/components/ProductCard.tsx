@@ -128,7 +128,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="card group cursor-pointer flex flex-col h-full hover:shadow-2xl transition-all duration-300 ease-out">
             <Link href={`/shop/${product.slug}`} className="block relative overflow-hidden flex-shrink-0 flex items-center justify-center group/image" style={{ aspectRatio: '3/4', background: '#f0f4ed' }}>
                 <Image
-                    src={product.thumbnail || '/images/products/himalayan-salt-makhana.svg'}
+                    src={product.thumbnail || 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg'}
                     alt={product.name}
                     fill
                     priority={false}

@@ -1,0 +1,99 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String   @id @default(cuid()) @map("id")
+  name              String
+  email             String   @unique
+  password          String
+  role              String   @default("user")
+  phone             String?
+  addresses         Json     @default("[]")
+  twoFactorEnabled  Boolean  @default(false) @map("two_factor_enabled")
+  twoFactorSecret   String?  @map("two_factor_secret")
+  backupCodes       Json     @default("[]") @map("backup_codes")
+  createdAt         DateTime @default(now()) @map("created_at")
+  cart              Cart?
+  orders            Order[]
+  reviews           Review[]
+
+  @@map("users")
+}
+
+model Product {
+  id               String   @id @default(cuid()) @map("id")
+  name             String
+  slug             String   @unique
+  description      String
+  shortDescription String?  @map("short_description")
+  price            Float
+  originalPrice    Float?   @map("original_price")
+  category         String
+  images           Json     @default("[]")
+  thumbnail        String?
+  stock            Int      @default(0)
+  weight           String?
+  ingredients      Json     @default("[]")
+  nutritionFacts   Json?    @map("nutrition_facts")
+  tags             Json     @default("[]")
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  isBestSeller     Boolean  @default(false) @map("is_best_seller")
+  ratings          Float    @default(0)
+  numReviews       Int      @default(0) @map("num_reviews")
+  createdAt        DateTime @default(now()) @map("created_at")
+  reviews          Review[]
+
+  @@map("products")
+}
+
+model Cart {
+  id        String   @id @default(cuid()) @map("id")
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     Json     @default("[]")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("carts")
+}
+
+model Order {
+  id              String    @id @default(cuid()) @map("id")
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           Json      @default("[]")
+  shippingAddress Json      @map("shipping_address")
+  itemsPrice      Float     @map("items_price")
+  shippingPrice   Float     @default(0) @map("shipping_price")
+  totalPrice      Float     @map("total_price")
+  paymentMethod   String    @default("Mock") @map("payment_method")
+  isPaid          Boolean   @default(false) @map("is_paid")
+  paidAt          DateTime? @map("paid_at")
+  status          String    @default("Pending")
+  trackingId      String?   @map("tracking_id")
+  isDelivered     Boolean   @default(false) @map("is_delivered")
+  deliveredAt     DateTime? @map("delivered_at")
+  paymentResult   Json?     @map("payment_result")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@map("orders")
+}
+
+model Review {
+  id        String   @id @default(cuid()) @map("id")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String?
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reviews")
+}

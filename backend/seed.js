@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
+const { PrismaClient } = require('@prisma/client');
 const dotenv = require('dotenv');
-const User = require('./models/User');
-const Product = require('./models/Product');
 const speakeasy = require('speakeasy');
+const bcrypt = require('bcryptjs');
 
 dotenv.config();
+
+const prisma = new PrismaClient();
 
 // Generate backup codes for 2FA
 const generateBackupCodes = () => {
@@ -24,9 +25,9 @@ const products = [
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/cream-onion-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563584/shuddheats/products/cream-onion-makhana.jpg",
         "images": [
-            "/images/products/cream-onion-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563584/shuddheats/products/cream-onion-makhana.jpg"
         ],
         "stock": 150,
         "weight": "100g",
@@ -61,9 +62,9 @@ const products = [
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/black-pepper-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563580/shuddheats/products/black-pepper-makhana.jpg",
         "images": [
-            "/images/products/black-pepper-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563580/shuddheats/products/black-pepper-makhana.jpg"
         ],
         "stock": 120,
         "weight": "100g",
@@ -98,9 +99,9 @@ const products = [
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/pudina-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563590/shuddheats/products/pudina-makhana.jpg",
         "images": [
-            "/images/products/pudina-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563590/shuddheats/products/pudina-makhana.jpg"
         ],
         "stock": 100,
         "weight": "100g",
@@ -135,9 +136,9 @@ const products = [
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/peri-peri-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563589/shuddheats/products/peri-peri-makhana.jpg",
         "images": [
-            "/images/products/peri-peri-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563589/shuddheats/products/peri-peri-makhana.jpg"
         ],
         "stock": 110,
         "weight": "100g",
@@ -172,9 +173,9 @@ const products = [
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/himalayan-salt-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg",
         "images": [
-            "/images/products/himalayan-salt-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg"
         ],
         "stock": 95,
         "weight": "100g",
@@ -209,9 +210,9 @@ const products = [
         "price": 129,
         "originalPrice": 169,
         "category": "Air Fried Chips",
-        "thumbnail": "/images/products/beetroot-chips.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563579/shuddheats/products/beetroot-chips.jpg",
         "images": [
-            "/images/products/beetroot-chips.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563579/shuddheats/products/beetroot-chips.jpg"
         ],
         "stock": 145,
         "weight": "100g",
@@ -247,9 +248,9 @@ const products = [
         "price": 129,
         "originalPrice": 169,
         "category": "Air Fried Chips",
-        "thumbnail": "/images/products/broccoli-chips.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563581/shuddheats/products/broccoli-chips.jpg",
         "images": [
-            "/images/products/broccoli-chips.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563581/shuddheats/products/broccoli-chips.jpg"
         ],
         "stock": 135,
         "weight": "100g",
@@ -286,9 +287,9 @@ const products = [
         "price": 129,
         "originalPrice": 169,
         "category": "Air Fried Chips",
-        "thumbnail": "/images/products/ragi-chips.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563591/shuddheats/products/ragi-chips.jpg",
         "images": [
-            "/images/products/ragi-chips.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563591/shuddheats/products/ragi-chips.jpg"
         ],
         "stock": 125,
         "weight": "100g",
@@ -324,9 +325,9 @@ const products = [
         "price": 149,
         "originalPrice": 199,
         "category": "No Sugar No Palm Oil Millet Cookies",
-        "thumbnail": "/images/products/honey-oats-cookies.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563586/shuddheats/products/honey-oats-cookies.jpg",
         "images": [
-            "/images/products/honey-oats-cookies.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563586/shuddheats/products/honey-oats-cookies.jpg"
         ],
         "stock": 120,
         "weight": "100g",
@@ -365,9 +366,9 @@ const products = [
         "price": 149,
         "originalPrice": 199,
         "category": "No Sugar No Palm Oil Millet Cookies",
-        "thumbnail": "/images/products/jowar-nuts-cookies.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563587/shuddheats/products/jowar-nuts-cookies.jpg",
         "images": [
-            "/images/products/jowar-nuts-cookies.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563587/shuddheats/products/jowar-nuts-cookies.jpg"
         ],
         "stock": 115,
         "weight": "100g",
@@ -407,9 +408,9 @@ const products = [
         "price": 149,
         "originalPrice": 199,
         "category": "No Sugar No Palm Oil Millet Cookies",
-        "thumbnail": "/images/products/ragi-elaichi-cookies.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563592/shuddheats/products/ragi-elaichi-cookies.jpg",
         "images": [
-            "/images/products/ragi-elaichi-cookies.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563592/shuddheats/products/ragi-elaichi-cookies.jpg"
         ],
         "stock": 125,
         "weight": "100g",
@@ -445,14 +446,14 @@ const products = [
 
 async function seed() {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/shuddheats');
-        console.log('✅ MongoDB Connected');
+        await prisma.$connect();
+        console.log('✅ Database Connected');
 
         // Only clear products, keep existing users
-        await Product.deleteMany({});
+        await prisma.product.deleteMany({});
 
         // Create admin user only if none exists
-        const adminExists = await User.findOne({ email: 'admin@shuddheats.com' });
+        const adminExists = await prisma.user.findUnique({ where: { email: 'admin@shuddheats.com' } });
         if (!adminExists) {
             // Generate 2FA secret for admin
             const secret = speakeasy.generateSecret({
@@ -461,16 +462,19 @@ async function seed() {
                 length: 32
             });
             const backupCodes = generateBackupCodes();
+            const hashedPasswordAdmin = await bcrypt.hash('admin123', 12);
 
-            await User.create({
-                name: 'ShuddhEats Admin',
-                email: 'admin@shuddheats.com',
-                password: 'admin123',
-                role: 'admin',
-                phone: '9876543210',
-                twoFactorEnabled: true,
-                twoFactorSecret: secret.base32,
-                backupCodes: backupCodes
+            await prisma.user.create({
+                data: {
+                    name: 'ShuddhEats Admin',
+                    email: 'admin@shuddheats.com',
+                    password: hashedPasswordAdmin,
+                    role: 'admin',
+                    phone: '9876543210',
+                    twoFactorEnabled: true,
+                    twoFactorSecret: secret.base32,
+                    backupCodes: backupCodes
+                }
             });
             console.log('✅ Admin created with 2FA enabled: admin@shuddheats.com / admin123');
             console.log('📱 2FA Secret (Base32):', secret.base32);
@@ -481,14 +485,17 @@ async function seed() {
         }
 
         // Create test user only if none exists
-        const userExists = await User.findOne({ email: 'user@shuddheats.com' });
+        const userExists = await prisma.user.findUnique({ where: { email: 'user@shuddheats.com' } });
         if (!userExists) {
-            await User.create({
-                name: 'Test User',
-                email: 'user@shuddheats.com',
-                password: 'user1234',
-                role: 'user',
-                phone: '9123456789'
+            const hashedPasswordUser = await bcrypt.hash('user1234', 12);
+            await prisma.user.create({
+                data: {
+                    name: 'Test User',
+                    email: 'user@shuddheats.com',
+                    password: hashedPasswordUser,
+                    role: 'user',
+                    phone: '9123456789'
+                }
             });
             console.log('✅ Test user created: user@shuddheats.com / user1234');
         } else {
@@ -496,7 +503,7 @@ async function seed() {
         }
 
         // Insert products
-        await Product.insertMany(products);
+        await prisma.product.createMany({ data: products });
         console.log(`✅ ${products.length} products seeded`);
 
         console.log('\n🎉 Database seeded successfully!');

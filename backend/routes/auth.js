@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 
@@ -19,13 +20,16 @@ router.post('/register', async (req, res) => {
         // Debug logging
         console.log('📝 Register request:', { name, email, phone, hasPassword: !!password });
 
-        const exists = await User.findOne({ email });
+        const exists = await User.findUnique({ where: { email } });
         if (exists) {
             console.log('⚠️ User already exists:', email);
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await User.create({ name, email, password, phone });
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const user = await User.create({
+            data: { name, email, password: hashedPassword, phone }
+        });
         console.log('✅ User registered:', { _id: user._id, email: user.email });
 
         res.status(201).json({
@@ -49,13 +53,13 @@ router.post('/login', async (req, res) => {
         // Debug logging
         console.log('🔐 Login attempt:', { email, hasPassword: !!password, bodyKeys: Object.keys(req.body) });
 
-        const user = await User.findOne({ email });
+        const user = await User.findUnique({ where: { email } });
         if (!user) {
             console.log('⚠️ User not found:', email);
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        const passwordMatch = await user.comparePassword(password);
+        const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
             console.log('⚠️ Password mismatch for:', email);
             return res.status(401).json({ message: 'Invalid email or password' });
@@ -110,23 +114,27 @@ router.post('/verify-2fa', async (req, res) => {
         }
 
         // Get user
-        const user = await User.findById(decoded.id);
+        const user = await User.findUnique({ where: { _id: decoded.id } });
         if (!user || !user.twoFactorEnabled) {
             return res.status(401).json({ message: 'Invalid 2FA setup' });
         }
 
         // Check if it's a backup code
-        const backupCodeIndex = user.backupCodes.indexOf(totpCode.toUpperCase());
+        const backupCodesArray = Array.isArray(user.backupCodes) ? user.backupCodes : [];
+        const backupCodeIndex = backupCodesArray.indexOf(totpCode.toUpperCase());
         if (backupCodeIndex !== -1) {
             // Valid backup code, remove it (single use)
-            user.backupCodes.splice(backupCodeIndex, 1);
-            await user.save();
+            backupCodesArray.splice(backupCodeIndex, 1);
+            const updatedUser = await User.update({
+                where: { _id: user._id },
+                data: { backupCodes: backupCodesArray }
+            });
             return res.json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                token: generateToken(user._id),
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                token: generateToken(updatedUser._id),
                 message: 'Login successful with backup code'
             });
         }
@@ -159,8 +167,10 @@ router.post('/verify-2fa', async (req, res) => {
 // @GET /api/auth/profile
 router.get('/profile', protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('-password');
-        res.json(user);
+        const user = await User.findUnique({ where: { _id: req.user._id } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        const { password, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -169,11 +179,22 @@ router.get('/profile', protect, async (req, res) => {
 // @PUT /api/auth/profile
 router.put('/profile', protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
-        user.name = req.body.name || user.name;
-        user.phone = req.body.phone || user.phone;
-        if (req.body.password) user.password = req.body.password;
-        const updated = await user.save();
+        const user = await User.findUnique({ where: { _id: req.user._id } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const updateData = {
+            name: req.body.name || user.name,
+            phone: req.body.phone !== undefined ? req.body.phone : user.phone
+        };
+        if (req.body.password) {
+            updateData.password = await bcrypt.hash(req.body.password, 12);
+        }
+
+        const updated = await User.update({
+            where: { _id: req.user._id },
+            data: updateData
+        });
+
         res.json({
             _id: updated._id,
             name: updated.name,
@@ -187,4 +208,3 @@ router.put('/profile', protect, async (req, res) => {
 });
 
 module.exports = router;
-

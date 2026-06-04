@@ -33,9 +33,9 @@ function ShopContent() {
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/himalayan-salt-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg",
         "images": [
-            "/images/products/himalayan-salt-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563585/shuddheats/products/himalayan-salt-makhana.jpg"
         ],
         "stock": 150,
         "weight": "100g",
@@ -71,9 +71,9 @@ function ShopContent() {
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/black-pepper-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563580/shuddheats/products/black-pepper-makhana.jpg",
         "images": [
-            "/images/products/black-pepper-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563580/shuddheats/products/black-pepper-makhana.jpg"
         ],
         "stock": 120,
         "weight": "100g",
@@ -109,9 +109,9 @@ function ShopContent() {
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/pudina-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563590/shuddheats/products/pudina-makhana.jpg",
         "images": [
-            "/images/products/pudina-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563590/shuddheats/products/pudina-makhana.jpg"
         ],
         "stock": 100,
         "weight": "100g",
@@ -147,9 +147,9 @@ function ShopContent() {
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/peri-peri-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563589/shuddheats/products/peri-peri-makhana.jpg",
         "images": [
-            "/images/products/peri-peri-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563589/shuddheats/products/peri-peri-makhana.jpg"
         ],
         "stock": 110,
         "weight": "100g",
@@ -185,9 +185,9 @@ function ShopContent() {
         "price": 249,
         "originalPrice": 299,
         "category": "Flavoured Makhanas",
-        "thumbnail": "/images/products/cream-onion-makhana.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563584/shuddheats/products/cream-onion-makhana.jpg",
         "images": [
-            "/images/products/cream-onion-makhana.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563584/shuddheats/products/cream-onion-makhana.jpg"
         ],
         "stock": 95,
         "weight": "100g",
@@ -223,9 +223,9 @@ function ShopContent() {
         "price": 129,
         "originalPrice": 169,
         "category": "Air Fried Chips",
-        "thumbnail": "/images/products/beetroot-chips.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563579/shuddheats/products/beetroot-chips.jpg",
         "images": [
-            "/images/products/beetroot-chips.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563579/shuddheats/products/beetroot-chips.jpg"
         ],
         "stock": 145,
         "weight": "100g",
@@ -262,9 +262,9 @@ function ShopContent() {
         "price": 129,
         "originalPrice": 169,
         "category": "Air Fried Chips",
-        "thumbnail": "/images/products/broccoli-chips.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563581/shuddheats/products/broccoli-chips.jpg",
         "images": [
-            "/images/products/broccoli-chips.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563581/shuddheats/products/broccoli-chips.jpg"
         ],
         "stock": 135,
         "weight": "100g",
@@ -302,9 +302,9 @@ function ShopContent() {
         "price": 129,
         "originalPrice": 169,
         "category": "Air Fried Chips",
-        "thumbnail": "/images/products/ragi-chips.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563591/shuddheats/products/ragi-chips.jpg",
         "images": [
-            "/images/products/ragi-chips.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563591/shuddheats/products/ragi-chips.jpg"
         ],
         "stock": 125,
         "weight": "100g",
@@ -341,9 +341,9 @@ function ShopContent() {
         "price": 149,
         "originalPrice": 199,
         "category": "No Sugar No Palm Oil Millet Cookies",
-        "thumbnail": "/images/products/honey-oats-cookies.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563586/shuddheats/products/honey-oats-cookies.jpg",
         "images": [
-            "/images/products/honey-oats-cookies.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563586/shuddheats/products/honey-oats-cookies.jpg"
         ],
         "stock": 120,
         "weight": "100g",
@@ -383,9 +383,9 @@ function ShopContent() {
         "price": 149,
         "originalPrice": 199,
         "category": "No Sugar No Palm Oil Millet Cookies",
-        "thumbnail": "/images/products/jowar-nuts-cookies.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563587/shuddheats/products/jowar-nuts-cookies.jpg",
         "images": [
-            "/images/products/jowar-nuts-cookies.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563587/shuddheats/products/jowar-nuts-cookies.jpg"
         ],
         "stock": 115,
         "weight": "100g",
@@ -426,9 +426,9 @@ function ShopContent() {
         "price": 149,
         "originalPrice": 199,
         "category": "No Sugar No Palm Oil Millet Cookies",
-        "thumbnail": "/images/products/ragi-elaichi-cookies.jpeg",
+        "thumbnail": "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563592/shuddheats/products/ragi-elaichi-cookies.jpg",
         "images": [
-            "/images/products/ragi-elaichi-cookies.jpeg"
+            "https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563592/shuddheats/products/ragi-elaichi-cookies.jpg"
         ],
         "stock": 125,
         "weight": "100g",

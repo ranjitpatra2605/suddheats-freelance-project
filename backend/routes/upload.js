@@ -1,37 +1,30 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const { protect } = require('../middleware/auth');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-// Store images in backend/uploads/ with original extension preserved
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
-    },
-    filename: (req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e6);
-        cb(null, unique + path.extname(file.originalname));
+// Configure Multer to use Cloudinary Storage
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'shuddheats/products',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'gif'],
+        transformation: [{ width: 1000, crop: 'limit' }]
     }
 });
 
-const fileFilter = (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-    if (allowed.includes(file.mimetype)) cb(null, true);
-    else cb(new Error('Only image files are allowed (jpg, png, webp, gif, svg)'));
-};
-
 const upload = multer({
-    storage,
-    fileFilter,
+    storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB max
 });
 
@@ -39,8 +32,8 @@ const upload = multer({
 router.post('/product-image', protect, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
-    // Return the full URL to the uploaded file
-    const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    // Cloudinary returns the full URL in req.file.path
+    const url = req.file.path;
     res.json({ success: true, url, filename: req.file.filename });
 });
 

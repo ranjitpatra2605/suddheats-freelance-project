@@ -58,7 +58,7 @@ export default function TwoFAVerifyPage() {
                 <div className="text-center mb-6 sm:mb-8">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden flex items-center justify-center mx-auto mb-3 sm:mb-4" style={{ background: 'rgba(255,255,255,0.95)', border: '2px solid #475d2a' }}>
                         <Image
-                            src="/images/logo-se-circle.png"
+                            src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563574/shuddheats/assets/logo-se-circle.png"
                             alt="ShuddhEats Logo"
                             width={80}
                             height={80}

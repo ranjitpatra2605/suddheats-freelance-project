@@ -14,13 +14,25 @@ router.use(protect, adminOnly);
 router.get('/dashboard', async (req, res) => {
     try {
         const [totalOrders, totalProducts, totalUsers, orders] = await Promise.all([
-            Order.countDocuments(),
-            Product.countDocuments(),
-            User.countDocuments({ role: 'user' }),
-            Order.find({})
+            Order.count(),
+            Product.count(),
+            User.count({ where: { role: 'user' } }),
+            Order.findMany({})
         ]);
         const totalRevenue = orders.filter(o => o.isPaid).reduce((sum, o) => sum + o.totalPrice, 0);
-        const recentOrders = await Order.find({}).populate('user', 'name email').sort({ createdAt: -1 }).limit(5);
+        const recentOrders = await Order.findMany({
+            include: {
+                user: {
+                    select: {
+                        _id: true,
+                        name: true,
+                        email: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5
+        });
         res.json({ totalOrders, totalProducts, totalUsers, totalRevenue, recentOrders });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -30,7 +42,7 @@ router.get('/dashboard', async (req, res) => {
 // @GET /api/admin/products — all products for admin
 router.get('/products', async (req, res) => {
     try {
-        const products = await Product.find({}).sort({ createdAt: -1 });
+        const products = await Product.findMany({ orderBy: { createdAt: 'desc' } });
         res.json(products);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -40,7 +52,18 @@ router.get('/products', async (req, res) => {
 // @GET /api/admin/orders
 router.get('/orders', async (req, res) => {
     try {
-        const orders = await Order.find({}).populate('user', 'name email').sort({ createdAt: -1 });
+        const orders = await Order.findMany({
+            include: {
+                user: {
+                    select: {
+                        _id: true,
+                        name: true,
+                        email: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
         res.json(orders);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -50,7 +73,18 @@ router.get('/orders', async (req, res) => {
 // @GET /api/admin/users
 router.get('/users', async (req, res) => {
     try {
-        const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+        const users = await User.findMany({
+            select: {
+                _id: true,
+                name: true,
+                email: true,
+                role: true,
+                phone: true,
+                twoFactorEnabled: true,
+                createdAt: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
         res.json(users);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -60,7 +94,17 @@ router.get('/users', async (req, res) => {
 // @GET /api/admin/inventory
 router.get('/inventory', async (req, res) => {
     try {
-        const products = await Product.find({}).select('name category stock price isFeatured isBestSeller');
+        const products = await Product.findMany({
+            select: {
+                _id: true,
+                name: true,
+                category: true,
+                stock: true,
+                price: true,
+                isFeatured: true,
+                isBestSeller: true
+            }
+        });
         res.json(products);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -70,11 +114,11 @@ router.get('/inventory', async (req, res) => {
 // @PATCH /api/admin/inventory/:id — update stock
 router.patch('/inventory/:id', async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            { stock: req.body.stock },
-            { new: true }
-        );
+        const stock = parseInt(req.body.stock, 10);
+        const product = await Product.update({
+            where: { _id: req.params.id },
+            data: { stock: stock }
+        });
         res.json(product);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -84,8 +128,9 @@ router.patch('/inventory/:id', async (req, res) => {
 // @DELETE /api/admin/inventory/:id — delete product
 router.delete('/inventory/:id', async (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete(req.params.id);
-        if (!product) return res.status(404).json({ message: 'Product not found' });
+        const product = await Product.delete({
+            where: { _id: req.params.id }
+        });
         res.json({ message: 'Product deleted successfully', product });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -95,14 +140,16 @@ router.delete('/inventory/:id', async (req, res) => {
 // @PUT /api/admin/orders/:id/status — update order status
 router.put('/orders/:id/status', async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id);
-        if (!order) return res.status(404).json({ message: 'Order not found' });
-        order.status = req.body.status;
-        if (req.body.status === 'Delivered') {
-            order.isDelivered = true;
-            order.deliveredAt = Date.now();
+        const status = req.body.status;
+        const updateData = { status };
+        if (status === 'Delivered') {
+            updateData.isDelivered = true;
+            updateData.deliveredAt = new Date();
         }
-        await order.save();
+        const order = await Order.update({
+            where: { _id: req.params.id },
+            data: updateData
+        });
         res.json(order);
     } catch (err) {
         res.status(500).json({ message: err.message });

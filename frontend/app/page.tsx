@@ -13,56 +13,49 @@ import { ArrowRight, Leaf, Flame, Shield, Recycle, Star, ChevronLeft, ChevronRig
 
 const heroSlides = [
   {
-    image: '/images/hero/makhana.jpg',
-    badge: '🌿 100% Clean Ingredients',
-    titleLine1: 'Snacking',
-    titleLine2: 'Reimagined.',
-    subtitle: 'Guilt-free, clean-labeled snacks that your body will thank you for. Roasted, not deep-fried.'
-  },
-  {
-    image: '/images/products/makhana-bundel.jpeg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563588/shuddheats/products/makhana-bundel.jpg',
     badge: '🌰 Air-Popped | Guilt-Free | High Protein',
     titleLine1: 'Flavoured',
     titleLine2: 'Makhanas',
     subtitle: 'From Himalayan Salt to Peri Peri — discover our full range of delicious roasted fox nuts.'
   },
   {
-    image: '/images/hero/ragi-cookies.jpg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563570/shuddheats/assets/ragi-cookies.jpg',
     badge: '🍪 Healthy | Organic | Clean Eating',
     titleLine1: 'Ragi & Elaichi',
     titleLine2: 'Cookies',
     subtitle: 'Wholesome | Vegan | Gluten-Free. Made with 100% Organic Ragi & Cardamom.'
   },
   {
-    image: '/images/hero/jowar-cookies.jpg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563568/shuddheats/assets/jowar-cookies.jpg',
     badge: '🍪 Healthy | Organic | Clean Eating',
     titleLine1: 'Jowar & Nuts',
     titleLine2: 'Cookies',
     subtitle: 'Wholesome | Vegan | Gluten-Free. Made with 100% Organic Jowar & Premium Nuts.'
   },
   {
-    image: '/images/products/cokkies-bundel.jpeg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563583/shuddheats/products/cokkies-bundel.jpg',
     badge: '🍪 No Sugar | No Palm Oil | Millet Goodness',
     titleLine1: 'Millet Cookie',
     titleLine2: 'Collection',
     subtitle: 'Baked with love — Honey & Oats, Jowar & Nuts, Ragi & Elaichi. Zero refined sugar.'
   },
   {
-    image: '/images/hero/beetroot-chips.jpg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563567/shuddheats/assets/beetroot-chips.jpg',
     badge: '🥔 Low Calorie | Fibre Rich',
     titleLine1: 'Beetroot',
     titleLine2: 'Chips',
     subtitle: 'Air Fried & Flavourful. Real Beetroot Taste with zero added preservatives.'
   },
   {
-    image: '/images/hero/broccoli-chips.jpg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563567/shuddheats/assets/broccoli-chips.jpg',
     badge: '🥦 Low Calorie | Fibre Rich',
     titleLine1: 'Broccoli',
     titleLine2: 'Chips',
     subtitle: 'Air Fried & Crispy. Real Broccoli Taste with zero added preservatives.'
   },
   {
-    image: '/images/products/chips-bundel.jpeg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563582/shuddheats/products/chips-bundel.jpg',
     badge: '🥗 Air Fried | 70% Less Oil | Crunchy',
     titleLine1: 'Air Fried Chips',
     titleLine2: 'Collection',
@@ -74,7 +67,7 @@ const categories = [
   {
     name: 'Flavoured Makhanas',
     emoji: '🌰',
-    image: '/images/products/makhana-bundel.jpeg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563588/shuddheats/products/makhana-bundel.jpg',
     desc: 'Air-popped fox nuts, guilt-free snacking',
     color: '#f0f4ed',
     icon: '🌿',
@@ -84,7 +77,7 @@ const categories = [
   {
     name: 'Air Fried Chips',
     emoji: '🥔',
-    image: '/images/products/chips-bundel.jpeg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563582/shuddheats/products/chips-bundel.jpg',
     desc: '70% less oil, 100% more crunch',
     color: '#FEF9E7',
     icon: '⚡',
@@ -94,7 +87,7 @@ const categories = [
   {
     name: 'No Sugar No Palm Oil Millet Cookies',
     emoji: '🍪',
-    image: '/images/products/cokkies-bundel.jpeg',
+    image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563583/shuddheats/products/cokkies-bundel.jpg',
     desc: 'Nutritious millet cookies with zero sugar',
     color: '#F0FDF4',
     icon: '💪',
@@ -124,7 +117,7 @@ export default function HomePage() {
   const [subSuccess, setSubSuccess] = useState(false);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [infoSlide, setInfoSlide] = useState(0);
-  const infoSlides = [{ image: '/images/slide1.jpeg' }, { image: '/images/slide2.jpeg' }, { image: '/images/slide3.jpeg' }];
+  const infoSlides = [{ image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563593/shuddheats/assets/slide1.jpg' }, { image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563594/shuddheats/assets/slide2.jpg' }, { image: 'https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563595/shuddheats/assets/slide3.jpg' }];
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -376,7 +369,7 @@ export default function HomePage() {
             {/* Tabular Comparison Table Card - Left Side (5 cols) */}
             <div className="lg:col-span-5 border border-gray-100 hover:shadow-xl transition-all duration-500 animate-slideInLeft rounded-xl overflow-hidden bg-white shadow-sm">
                 <Image 
-                  src="/images/nutrition.jpeg" 
+                  src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563578/shuddheats/assets/nutrition.jpg" 
                   alt="Nutrition Comparison" 
                   width={1200}
                   height={675}
@@ -507,7 +500,7 @@ export default function HomePage() {
             {/* Left Mascot Character (Woman Green) */}
             <div className="absolute right-full mr-4 lg:mr-10 xl:mr-14 bottom-0 w-64 lg:w-80 xl:w-96 h-auto lg:block hidden z-10 animate-float pointer-events-none select-none">
               <Image 
-                src="/images/character-woman-green.png" 
+                src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563564/shuddheats/assets/character-woman-green.png" 
                 alt="ShuddhEats Mascot Green" 
                 width={384} 
                 height={285}
@@ -518,7 +511,7 @@ export default function HomePage() {
             {/* Right Mascot Character (Man Yellow) */}
             <div className="absolute left-full ml-4 lg:ml-10 xl:ml-14 bottom-0 w-64 lg:w-80 xl:w-96 h-auto lg:block hidden z-10 animate-float-delayed pointer-events-none select-none">
               <Image 
-                src="/images/character-yellow.png" 
+                src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563566/shuddheats/assets/character-yellow.png" 
                 alt="ShuddhEats Mascot Yellow" 
                 width={384} 
                 height={384}

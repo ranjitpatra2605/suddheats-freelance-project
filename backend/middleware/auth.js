@@ -11,10 +11,14 @@ const protect = async (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id).select('-password');
-        if (!req.user) {
+        const rawUser = await User.findUnique({
+            where: { _id: decoded.id }
+        });
+        if (!rawUser) {
             return res.status(401).json({ message: 'User no longer exists. Please log in again.' });
         }
+        const { password, ...userWithoutPassword } = rawUser;
+        req.user = userWithoutPassword;
         next();
     } catch (err) {
         return res.status(401).json({ message: 'Not authorized, token failed' });

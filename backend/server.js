@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const prisma = require('./models/db');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -78,13 +78,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'ShuddhEats API is running', timestamp: new Date().toISOString() });
 });
 
-// Connect MongoDB and start server
+// Connect Database and start server
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/shuddheats';
 
-mongoose.connect(MONGO_URI)
+prisma.$connect()
   .then(() => {
-    console.log('✅ MongoDB Connected');
+    console.log('✅ Database Connected');
 
     // Listen on 0.0.0.0 to accept connections from any device on the network
     app.listen(PORT, '0.0.0.0', () => {
@@ -95,7 +94,7 @@ mongoose.connect(MONGO_URI)
     });
   })
   .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
+    console.error('❌ Database connection error:', err.message);
     process.exit(1);
   });
 
