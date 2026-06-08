@@ -7,9 +7,9 @@ import { ArrowLeft, X, User, Phone, MapPin, Calendar, Clock } from 'lucide-react
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
-const STATUSES = ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'];
-const STATUS_COLORS: any = { Pending: '#fef3c7', Processing: '#dbeafe', Shipped: '#e0ffe0', 'Out for Delivery': '#f3e8ff', Delivered: '#d1fae5', Cancelled: '#fee2e2' };
-const STATUS_TEXT: any = { Pending: '#92400e', Processing: '#1e40af', Shipped: '#166534', 'Out for Delivery': '#6b21a8', Delivered: '#065f46', Cancelled: '#991b1b' };
+const STATUSES = ['Pending', 'PLACED', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'];
+const STATUS_COLORS: any = { Pending: '#fef3c7', PLACED: '#ffedd5', Processing: '#dbeafe', Shipped: '#e0ffe0', 'Out for Delivery': '#f3e8ff', Delivered: '#d1fae5', Cancelled: '#fee2e2' };
+const STATUS_TEXT: any = { Pending: '#92400e', PLACED: '#c2410c', Processing: '#1e40af', Shipped: '#166534', 'Out for Delivery': '#6b21a8', Delivered: '#065f46', Cancelled: '#991b1b' };
 
 function CustomerDetailsModal({ order, onClose }: { order: any; onClose: () => void }) {
     const addr = order.shippingAddress || {};
@@ -169,8 +169,8 @@ export default function AdminOrdersPage() {
                                     <div className="flex items-center gap-3 flex-wrap">
                                         <div className="text-right">
                                             <p className="font-bold text-lg" style={{ color: '#475d2a' }}>₹{order.totalPrice}</p>
-                                            <p className={`text-xs font-medium ${order.isPaid ? 'text-green-600' : 'text-orange-500'}`}>
-                                                {order.isPaid ? '✓ Paid' : 'Unpaid'}
+                                            <p className={`text-xs font-bold ${order.isPaid ? 'text-green-600' : (order.paymentMethod === 'COD' ? 'text-blue-600' : 'text-orange-500')}`}>
+                                                {order.isPaid ? '✓ Paid' : (order.paymentMethod === 'COD' ? 'Cash on Delivery' : 'Unpaid')}
                                             </p>
                                         </div>
                                         {/* Details Button */}

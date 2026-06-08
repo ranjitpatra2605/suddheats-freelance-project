@@ -59,7 +59,7 @@ function PaymentProcessingModal({ onComplete }: { onComplete: (orderId: string) 
     );
 }
 
-function OrderSuccessScreen({ orderId }: { orderId: string }) {
+function OrderSuccessScreen({ orderId, paymentMethod }: { orderId: string; paymentMethod: string }) {
     return (
         <>
             <ConfettiEffect />
@@ -78,7 +78,11 @@ function OrderSuccessScreen({ orderId }: { orderId: string }) {
                         <Sparkles className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 text-[rgb(223,196,172)] animate-bounce-slow" />
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-extrabold mb-2 sm:mb-3" style={{ color: '#475d2a' }}>Order Placed! 🎉</h1>
-                    <p className="text-gray-500 text-sm sm:text-lg mb-2">Thank you for choosing ShuddhEats!</p>
+                    {paymentMethod === 'COD' ? (
+                        <p className="text-green-700 font-bold text-sm sm:text-lg mb-2">Order placed successfully. Pay cash at the time of delivery.</p>
+                    ) : (
+                        <p className="text-gray-500 text-sm sm:text-lg mb-2">Thank you for choosing ShuddhEats!</p>
+                    )}
                     <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-mono font-bold mb-6 sm:mb-8"
                         style={{ background: '#f0f4ed', color: '#475d2a' }}>
                         Order ID: {orderId}
@@ -161,6 +165,7 @@ export default function CheckoutPage() {
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
     const [orderId, setOrderId] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('ONLINE');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,10 +213,16 @@ export default function CheckoutPage() {
         if (!validate()) return;
         if (!user) { router.push('/auth/login?redirect=/checkout'); return; }
         if (items.length === 0) { toast.error('Cart is empty'); return; }
+        
+        if (paymentMethod === 'COD') {
+            handlePaymentComplete('MOCK-' + Date.now(), 'COD');
+            return;
+        }
+        
         setProcessing(true);
     };
 
-    const handlePaymentComplete = async (mockOrderId: string) => {
+    const handlePaymentComplete = async (mockOrderId: string, overrideMethod?: string) => {
         // Guard: prevent double order creation if callback fires more than once
         if (orderCreatedRef.current) return;
         orderCreatedRef.current = true;
@@ -232,7 +243,7 @@ export default function CheckoutPage() {
                     itemsPrice: subtotal,
                     shippingPrice: shipping,
                     totalPrice: total,
-                    paymentMethod: 'Mock'
+                    paymentMethod: overrideMethod || 'Mock'
                 });
                 backendOrderId = order.id;
 
@@ -244,8 +255,8 @@ export default function CheckoutPage() {
         } catch { orderCreatedRef.current = false; }
     };
 
-    if (success) return <OrderSuccessScreen orderId={orderId} />;
-    if (processing) return <PaymentProcessingModal onComplete={handlePaymentComplete} />;
+    if (success) return <OrderSuccessScreen orderId={orderId} paymentMethod={paymentMethod} />;
+    if (processing) return <PaymentProcessingModal onComplete={(id) => handlePaymentComplete(id)} />;
 
     if (items.length === 0) return (
         <div className="min-h-screen pt-24 flex items-center justify-center">
@@ -295,11 +306,38 @@ export default function CheckoutPage() {
 
                         {/* Payment */}
                         <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                            <h2 className="text-lg font-bold mb-3" style={{ color: '#475d2a' }}>
-                                💳 Payment
+                            <h2 className="text-lg font-bold mb-4" style={{ color: '#475d2a' }}>
+                                💳 Payment Method
                             </h2>
-                            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold" style={{ background: '#f0f4ed', color: '#475d2a' }}>
-                                🔐 Secure (Demo)
+                            <div className="space-y-3">
+                                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${paymentMethod === 'ONLINE' ? 'border-[#475d2a] bg-[#f0f4ed]' : 'border-gray-100'}`}>
+                                    <input 
+                                        type="radio" 
+                                        name="paymentMethod" 
+                                        value="ONLINE" 
+                                        checked={paymentMethod === 'ONLINE'} 
+                                        onChange={() => setPaymentMethod('ONLINE')} 
+                                        className="w-4 h-4 text-[#475d2a] focus:ring-[#475d2a]"
+                                    />
+                                    <div>
+                                        <div className="font-bold text-sm" style={{ color: '#475d2a' }}>Online Payment (Secure)</div>
+                                        <div className="text-xs text-gray-500">Pay via Credit/Debit Card, UPI, Wallets</div>
+                                    </div>
+                                </label>
+                                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${paymentMethod === 'COD' ? 'border-[#475d2a] bg-[#f0f4ed]' : 'border-gray-100'}`}>
+                                    <input 
+                                        type="radio" 
+                                        name="paymentMethod" 
+                                        value="COD" 
+                                        checked={paymentMethod === 'COD'} 
+                                        onChange={() => setPaymentMethod('COD')} 
+                                        className="w-4 h-4 text-[#475d2a] focus:ring-[#475d2a]"
+                                    />
+                                    <div>
+                                        <div className="font-bold text-sm" style={{ color: '#475d2a' }}>Cash on Delivery (Pay when product is delivered)</div>
+                                        <div className="text-xs text-gray-500">Only available for India delivery addresses</div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -412,7 +450,7 @@ export default function CheckoutPage() {
                             opacity: Object.keys(errors).length > 0 ? 0.6 : 1,
                         }}
                     >
-                        Pay Now 🔒
+                        {paymentMethod === 'COD' ? 'Place Order' : 'Pay Now 🔒'}
                     </button>
                 </div>
             </div>

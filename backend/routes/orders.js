@@ -32,7 +32,8 @@ router.post('/', protect, async (req, res) => {
                     itemsPrice: parseFloat(itemsPrice),
                     shippingPrice: parseFloat(shippingPrice),
                     totalPrice: parseFloat(totalPrice),
-                    paymentMethod: paymentMethod
+                    paymentMethod: paymentMethod,
+                    status: paymentMethod === 'COD' ? 'PLACED' : 'Pending'
                 }
             });
 
