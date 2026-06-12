@@ -157,7 +157,7 @@ export default function CheckoutPage() {
     const [discountAmount, setDiscountAmount] = useState(0);
     const [appliedPromo, setAppliedPromo] = useState('');
 
-    const shipping = subtotal > 499 ? 0 : 49;
+    const shipping = subtotal >= 499 ? 0 : 49;
     const total = Math.max(0, subtotal - discountAmount + shipping);
     const orderCreatedRef = useRef(false);
 
@@ -171,6 +171,14 @@ export default function CheckoutPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm(f => ({ ...f, [name]: value }));
+        // Reactive validation: clear error for the field being typed
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     const handleApplyPromo = (e: React.FormEvent) => {
@@ -404,6 +412,15 @@ export default function CheckoutPage() {
 
                             {/* Pricing */}
                             <div className="space-y-1.5 text-sm border-t border-gray-100 pt-4 mt-4">
+                                {subtotal < 499 ? (
+                                    <div className="text-xs text-orange-600 font-semibold mb-2 bg-orange-50 p-2 rounded">
+                                        Add ₹{499 - subtotal} more for FREE delivery
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-green-600 font-semibold mb-2 bg-green-50 p-2 rounded flex items-center gap-1">
+                                        🎉 Free Delivery on orders above ₹499
+                                    </div>
+                                )}
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">Subtotal</span>
                                     <span className="font-medium">₹{subtotal}</span>

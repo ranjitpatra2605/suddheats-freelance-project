@@ -13,6 +13,11 @@ router.post('/', protect, async (req, res) => {
         const { items, shippingAddress, itemsPrice, shippingPrice, totalPrice, paymentMethod } = req.body;
         if (!items || items.length === 0) return res.status(400).json({ message: 'No items in order' });
 
+        let itemsPriceFloat = parseFloat(itemsPrice);
+        let correctShippingPrice = itemsPriceFloat >= 499 ? 0 : 49;
+        let receivedShippingPrice = parseFloat(shippingPrice || 0);
+        let finalTotalPrice = parseFloat(totalPrice) - receivedShippingPrice + correctShippingPrice;
+
         // Run stock decrement, order creation, and cart clearance in a transaction
         const order = await prisma.$transaction(async (tx) => {
             // Reduce stock
@@ -29,9 +34,9 @@ router.post('/', protect, async (req, res) => {
                     userId: req.user.id,
                     items: items,
                     shippingAddress: shippingAddress,
-                    itemsPrice: parseFloat(itemsPrice),
-                    shippingPrice: parseFloat(shippingPrice),
-                    totalPrice: parseFloat(totalPrice),
+                    itemsPrice: itemsPriceFloat,
+                    shippingPrice: correctShippingPrice,
+                    totalPrice: finalTotalPrice,
                     paymentMethod: paymentMethod,
                     status: paymentMethod === 'COD' ? 'PLACED' : 'Pending'
                 }
