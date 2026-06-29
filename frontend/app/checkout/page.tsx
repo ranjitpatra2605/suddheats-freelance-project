@@ -274,23 +274,37 @@ export default function CheckoutPage() {
                     });
                     
                     const data = await response.json();
-                    console.log("Full create-order response:", data);
+                    console.log("Order API response:", data);
                     
                     if (!data.payment_session_id) {
-                        toast.error("Invalid payment session ID");
+                        toast.error("Invalid payment session ID from backend");
                         orderCreatedRef.current = false;
                         setProcessing(false);
                         return; // STOP execution
                     }
                     
-                    console.log("Opening Cashfree checkout with session ID:", data.payment_session_id);
+                    console.log("Payment Session ID:", data.payment_session_id);
+                    
+                    // Default to sandbox if env is missing, but allow production override
+                    const cashfreeMode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox';
+                    console.log("SDK initialization details:", { mode: cashfreeMode });
+                    
                     const cashfree = await load({
-                        mode: "sandbox" // Forcing sandbox as requested
+                        mode: cashfreeMode
                     });
                     
+                    console.log("Opening Cashfree Checkout");
                     cashfree.checkout({
                         paymentSessionId: data.payment_session_id,
                         redirectTarget: "_self"
+                    }).then((result: any) => {
+                        if (result.error) {
+                            console.error("COMPLETE error object:", result.error);
+                            console.error("paymentSessionId being passed:", data.payment_session_id);
+                            toast.error(result.error.message || "Payment failed");
+                            orderCreatedRef.current = false;
+                            setProcessing(false);
+                        }
                     });
                     return; // Prevent further execution to let redirect happen
                 }
