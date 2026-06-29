@@ -258,27 +258,44 @@ export default function CheckoutPage() {
 
                 if (overrideMethod !== 'COD') {
                     console.log("Creating order...");
-                    const response = await api.post('https://suddheats-freelance-project-production.up.railway.app/api/payment/create-order', {
-                        orderId: backendOrderId,
-                        amount: total,
-                        currency: 'INR'
+                    const token = localStorage.getItem('shuddheats_token');
+                    
+                    const fetchResponse = await fetch('https://suddheats-freelance-project-production.up.railway.app/api/payment/create-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                        },
+                        body: JSON.stringify({
+                            orderId: backendOrderId,
+                            amount: total,
+                            currency: 'INR'
+                        })
                     });
                     
-                    console.log("Order created:", response.data);
-                    const { payment_session_id } = response.data;
+                    const responseData = await fetchResponse.json();
+                    console.log("Order created:", responseData);
                     
-                    if (payment_session_id) {
-                        console.log("Opening Cashfree checkout");
-                        const cashfree = await load({
-                            mode: "sandbox"
-                        });
-                        
-                        cashfree.checkout({
-                            paymentSessionId: payment_session_id,
-                            redirectTarget: "_self"
-                        });
-                        return; // Prevent further execution to let redirect happen
+                    const payment_session_id = responseData.payment_session_id;
+                    console.log("Payment session ID:", payment_session_id);
+                    
+                    if (!payment_session_id) {
+                        toast.error("Invalid payment session ID");
+                        orderCreatedRef.current = false;
+                        setProcessing(false);
+                        return; // STOP execution
                     }
+                    
+                    console.log("Opening Cashfree checkout");
+                    const cashfree = await load({
+                        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox'
+                    });
+                    
+                    cashfree.checkout({
+                        paymentSessionId: payment_session_id,
+                        redirectTarget: "_self"
+                    });
+                    return; // Prevent further execution to let redirect happen
                 }
             } catch (err) {
                 console.error("Payment API Error:", err);
