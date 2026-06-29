@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { CheckCircle, Package, Truck, Home, Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { load } from '@cashfreepayments/cashfree-js';
 
 interface ConfettiPiece { id: number; left: string; color: string; delay: string; size: string; }
 
@@ -251,11 +252,42 @@ export default function CheckoutPage() {
                     itemsPrice: subtotal,
                     shippingPrice: shipping,
                     totalPrice: total,
-                    paymentMethod: overrideMethod || 'Mock'
+                    paymentMethod: overrideMethod || 'ONLINE'
                 });
                 backendOrderId = order.id;
 
-            } catch { /* fallback to mock ID */ }
+                if (overrideMethod !== 'COD') {
+                    console.log("Creating order...");
+                    const response = await api.post('https://suddheats-freelance-project-production.up.railway.app/api/payment/create-order', {
+                        orderId: backendOrderId,
+                        amount: total,
+                        currency: 'INR'
+                    });
+                    
+                    console.log("Order created:", response.data);
+                    const { payment_session_id } = response.data;
+                    
+                    if (payment_session_id) {
+                        console.log("Opening Cashfree checkout");
+                        const cashfree = await load({
+                            mode: "sandbox"
+                        });
+                        
+                        cashfree.checkout({
+                            paymentSessionId: payment_session_id,
+                            redirectTarget: "_self"
+                        });
+                        return; // Prevent further execution to let redirect happen
+                    }
+                }
+            } catch (err) {
+                console.error("Payment API Error:", err);
+                toast.error("Failed to initialize payment gateway");
+                orderCreatedRef.current = false;
+                setProcessing(false);
+                return;
+            }
+            
             clearCart();
             setOrderId(backendOrderId);
             setProcessing(false);
