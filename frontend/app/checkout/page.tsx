@@ -260,7 +260,7 @@ export default function CheckoutPage() {
                     console.log("Creating order...");
                     const token = localStorage.getItem('shuddheats_token');
                     
-                    const fetchResponse = await fetch('https://suddheats-freelance-project-production.up.railway.app/api/payment/create-order', {
+                    const response = await fetch('https://suddheats-freelance-project-production.up.railway.app/api/payment/create-order', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -273,26 +273,23 @@ export default function CheckoutPage() {
                         })
                     });
                     
-                    const responseData = await fetchResponse.json();
-                    console.log("Order created:", responseData);
+                    const data = await response.json();
+                    console.log("Full create-order response:", data);
                     
-                    const payment_session_id = responseData.payment_session_id;
-                    console.log("Payment session ID:", payment_session_id);
-                    
-                    if (!payment_session_id) {
+                    if (!data.payment_session_id) {
                         toast.error("Invalid payment session ID");
                         orderCreatedRef.current = false;
                         setProcessing(false);
                         return; // STOP execution
                     }
                     
-                    console.log("Opening Cashfree checkout");
+                    console.log("Opening Cashfree checkout with session ID:", data.payment_session_id);
                     const cashfree = await load({
-                        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox'
+                        mode: "sandbox" // Forcing sandbox as requested
                     });
                     
                     cashfree.checkout({
-                        paymentSessionId: payment_session_id,
+                        paymentSessionId: data.payment_session_id,
                         redirectTarget: "_self"
                     });
                     return; // Prevent further execution to let redirect happen
