@@ -29,7 +29,7 @@ router.post('/create-order', protect, async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        const returnUrl = `${process.env.FRONTEND_URL || req.headers.origin || 'https://suddheats-freelance-project.vercel.app'}/payment/success?order_id={order_id}`;
+        const returnUrl = `${process.env.FRONTEND_URL || req.headers.origin || 'https://suddheats-freelance-project.vercel.app'}/payment/verify?order_id={order_id}`;
         console.log("Order Creation API called, return_url:", returnUrl);
 
         // Call Cashfree API to create the order session
@@ -112,37 +112,77 @@ router.post('/webhook', async (req, res) => {
 
         // Process based on event type
         if (payload.type === 'PAYMENT_SUCCESS_WEBHOOK') {
-            const { order_id, payment_status } = payload.data.payment;
+            const { order_id, payment_status, cf_payment_id, payment_amount, payment_time, payment_currency } = payload.data.payment;
             
             if (payment_status === 'SUCCESS') {
+                const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
+                
+                if (existingOrder && existingOrder.isPaid) {
+                    console.log(`Order ${order_id} already PAID. Idempotency check passed. Ignoring webhook.`);
+                    return res.status(200).json({ status: 'OK' });
+                }
+
                 await prisma.order.update({
                     where: { id: order_id },
                     data: {
                         isPaid: true,
                         paidAt: new Date(),
                         status: 'PAID',
+                        paymentResult: {
+                            cashfree_order_id: payload.data.order?.order_id || order_id,
+                            cf_payment_id: cf_payment_id,
+                            amount: payment_amount,
+                            currency: payment_currency,
+                            timestamp: payment_time,
+                            raw: payload.data.payment
+                        }
+                    }
+                });
+                console.log(`Webhook received -> Order ${order_id} updated -> Revenue secured`);
+            }
+        } else if (payload.type === 'PAYMENT_FAILED_WEBHOOK' || payload.type === 'PAYMENT_USER_DROPPED_WEBHOOK') {
+            const { order_id, payment_status } = payload.data.payment;
+            
+            const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
+                
+            if (existingOrder && !existingOrder.isPaid) {
+                await prisma.order.update({
+                    where: { id: order_id },
+                    data: {
+                        isPaid: false,
+                        status: 'FAILED',
                         paymentResult: payload.data.payment
                     }
                 });
-                console.log(`Order ${order_id} marked as PAID`);
+                console.log(`Webhook received -> Order ${order_id} marked as FAILED`);
             }
-        } else if (payload.type === 'PAYMENT_FAILED_WEBHOOK') {
-            const { order_id } = payload.data.payment;
-            
-            await prisma.order.update({
-                where: { id: order_id },
-                data: {
-                    status: 'FAILED',
-                    paymentResult: payload.data.payment
-                }
-            });
-            console.log(`Order ${order_id} marked as FAILED`);
         }
 
         // Always acknowledge webhook immediately with 200 OK
         res.status(200).json({ status: 'OK' });
     } catch (err) {
         console.error('Webhook Error:', err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// @GET /api/payment/status/:orderId
+// Safely check the order payment status from frontend
+router.get('/status/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            select: { id: true, isPaid: true, status: true }
+        });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.json({ isPaid: order.isPaid, status: order.status });
+    } catch (err) {
+        console.error('Fetch Order Status Error:', err);
         res.status(500).json({ message: err.message });
     }
 });
