@@ -29,6 +29,9 @@ router.post('/create-order', protect, async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
+        const returnUrl = `${process.env.FRONTEND_URL || req.headers.origin || 'https://suddheats-freelance-project.vercel.app'}/payment/success?order_id={order_id}`;
+        console.log("Order Creation API called, return_url:", returnUrl);
+
         // Call Cashfree API to create the order session
         const response = await fetch(getCashfreeURL(), {
             method: 'POST',
@@ -51,7 +54,7 @@ router.post('/create-order', protect, async (req, res) => {
                 },
                 order_meta: {
                     // This will be called by frontend upon completion
-                    return_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/${order.id}?payment_status={order_status}`
+                    return_url: returnUrl
                 }
             })
         });
