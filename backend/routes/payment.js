@@ -6,9 +6,10 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 
 const getCashfreeURL = () => {
-    return process.env.CASHFREE_ENV === 'PRODUCTION' 
-        ? 'https://api.cashfree.com/pg/orders' 
-        : 'https://sandbox.cashfree.com/pg/orders';
+    // Default to production for real payments
+    return process.env.CASHFREE_ENV === 'SANDBOX' 
+        ? 'https://sandbox.cashfree.com/pg/orders' 
+        : 'https://api.cashfree.com/pg/orders';
 };
 
 // @POST /api/payment/create-order
@@ -111,70 +112,61 @@ router.post('/webhook', async (req, res) => {
         console.log('Valid Cashfree Webhook Received:', payload.type);
 
         // Extract order_id from payload.data.order (Cashfree 2023-08-01 format)
-        const order_id = payload.data?.order?.order_id || payload.data?.payment?.order_id;
+        const cashfreeOrderId = payload.data?.order?.order_id || payload.data?.payment?.order_id;
         
-        console.log('Webhook payload received. Extracted order_id:', order_id);
+        console.log('Webhook payload received. Extracted cashfreeOrderId:', cashfreeOrderId);
         
-        if (!order_id) {
+        if (!cashfreeOrderId) {
             console.error('Order ID not found in webhook payload:', JSON.stringify(payload));
             return res.status(200).json({ status: 'OK', message: 'Payload missing order_id' }); // Return 200 so cashfree stops retrying invalid payloads
         }
 
         // Process based on event type
         if (payload.type === 'PAYMENT_SUCCESS_WEBHOOK') {
-            const { payment_status, cf_payment_id, payment_amount, payment_time, payment_currency } = payload.data.payment || {};
+            const { payment_status } = payload.data.payment || {};
             
             if (payment_status === 'SUCCESS') {
-                const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
+                const existingOrder = await prisma.order.findUnique({ where: { id: cashfreeOrderId } });
                 
                 if (!existingOrder) {
-                    console.error(`Database order not found for order_id: ${order_id}`);
+                    console.error(`Database order not found for cashfreeOrderId: ${cashfreeOrderId}`);
                     return res.status(404).json({ message: 'Order not found' });
                 }
                 
                 console.log(`Database order found: ${existingOrder.id}`);
 
                 if (existingOrder.isPaid) {
-                    console.log(`Order ${order_id} already PAID. Idempotency check passed. Ignoring webhook.`);
+                    console.log(`Order ${cashfreeOrderId} already PAID. Idempotency check passed. Ignoring webhook.`);
                     return res.status(200).json({ status: 'OK' });
                 }
 
                 await prisma.order.update({
-                    where: { id: order_id },
+                    where: { id: cashfreeOrderId },
                     data: {
                         isPaid: true,
                         paidAt: new Date(),
                         status: 'PAID',
-                        paymentResult: {
-                            cashfree_order_id: order_id,
-                            cf_payment_id: cf_payment_id,
-                            amount: payment_amount,
-                            currency: payment_currency,
-                            timestamp: payment_time,
-                            raw: payload.data.payment
-                        }
+                        paymentResult: payload
                     }
                 });
-                console.log(`Order ${order_id} updated successfully`);
-                console.log(`Webhook received -> Order ${order_id} updated -> Revenue updated`);
+                console.log(`Order ${cashfreeOrderId} updated successfully`);
+                console.log(`Webhook received -> Order ${cashfreeOrderId} updated -> Revenue updated`);
             }
         } else if (payload.type === 'PAYMENT_FAILED_WEBHOOK' || payload.type === 'PAYMENT_USER_DROPPED_WEBHOOK') {
-            const { payment_status } = payload.data.payment || {};
-            
-            const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
+            const existingOrder = await prisma.order.findUnique({ where: { id: cashfreeOrderId } });
                 
             if (existingOrder && !existingOrder.isPaid) {
                 await prisma.order.update({
-                    where: { id: order_id },
+                    where: { id: cashfreeOrderId },
                     data: {
                         isPaid: false,
                         status: 'FAILED',
-                        paymentResult: payload.data.payment
+                        paymentResult: payload
                     }
                 });
-                console.log(`Webhook received -> Order ${order_id} marked as FAILED`);
+                console.log(`Webhook received -> Order ${cashfreeOrderId} marked as FAILED`);
             } else if (!existingOrder) {
-                console.error(`Database order not found for failed order_id: ${order_id}`);
+                console.error(`Database order not found for failed cashfreeOrderId: ${cashfreeOrderId}`);
             }
         }
 

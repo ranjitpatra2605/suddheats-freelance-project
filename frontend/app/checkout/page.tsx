@@ -203,8 +203,8 @@ export default function CheckoutPage() {
                     
                     console.log("Payment Session ID:", data.payment_session_id);
                     
-                    // Default to sandbox if env is missing, but allow production override
-                    const cashfreeMode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'PRODUCTION' ? 'production' : 'sandbox';
+                    // Force production mode for real payments
+                    const cashfreeMode = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'SANDBOX' ? 'sandbox' : 'production';
                     console.log("SDK initialization details:", { mode: cashfreeMode });
                     
                     const cashfree = await load({
