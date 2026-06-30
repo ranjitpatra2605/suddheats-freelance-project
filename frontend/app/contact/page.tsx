@@ -42,7 +42,7 @@ export default function ContactPage() {
                     {/* Info Cards */}
                     <div className="space-y-4">
                         {[
-                            { Icon: Mail, title: 'Email Us', detail: 'info@shuddheats.co.in', sub: 'Reply within 24 hours' },
+                            { Icon: Mail, title: 'Email Us', detail: 'shuddheats3126@gmail.com', sub: 'Reply within 24 hours' },
                             { Icon: Phone, title: 'Call Us', detail: '+91 88508 23761', sub: 'Mon-Sat, 9am-6pm IST' },
                             { Icon: MapPin, title: 'Our Kitchen', detail: 'Mumbai', sub: 'Maharashtra' },
                             { Icon: Clock, title: 'Business Hours', detail: 'Mon-Sat: 9am-6pm', sub: 'Sun: Closed' },

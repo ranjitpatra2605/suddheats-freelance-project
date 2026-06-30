@@ -135,7 +135,7 @@ export default function AboutPage() {
                         <div className="card p-8 text-center animate-scaleIn" style={{ animationDelay: '0.1s' }}>
                             <div className="text-4xl mb-4">✉️</div>
                             <h3 className="font-bold text-lg mb-2" style={{ color: '#475d2a' }}>Email</h3>
-                            <a href="mailto:info@shuddheats.co.in" className="text-gray-600 hover:text-primary transition">info@shuddheats.co.in</a>
+                            <a href="mailto:shuddheats3126@gmail.com" className="text-gray-600 hover:text-primary transition">shuddheats3126@gmail.com</a>
                         </div>
                         <div className="card p-8 text-center animate-scaleIn" style={{ animationDelay: '0.2s' }}>
                             <div className="text-4xl mb-4">📞</div>
