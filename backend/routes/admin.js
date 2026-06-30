@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
+const ContactQuery = require('../models/ContactQuery');
 const { protect } = require('../middleware/auth');
 const { adminOnly } = require('../middleware/admin');
 
@@ -151,6 +152,16 @@ router.put('/orders/:id/status', async (req, res) => {
             data: updateData
         });
         res.json(order);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// @GET /api/admin/queries — all contact queries for admin
+router.get('/queries', async (req, res) => {
+    try {
+        const queries = await ContactQuery.findMany({ orderBy: { createdAt: 'desc' } });
+        res.json(queries);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

@@ -55,6 +55,7 @@ export default function AdminDashboard() {
                     <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <Link href="/admin/products" className="btn-primary text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 w-full sm:w-auto text-center">Manage Products</Link>
                         <Link href="/admin/orders" className="btn-outline text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 w-full sm:w-auto text-center">Manage Orders</Link>
+                        <Link href="/admin/queries" className="btn-outline text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 w-full sm:w-auto text-center">View Queries</Link>
                     </div>
                 </div>
 

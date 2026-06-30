@@ -97,3 +97,14 @@ model Review {
 
   @@map("reviews")
 }
+
+model ContactQuery {
+  id        String   @id @default(cuid()) @map("id")
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contact_queries")
+}

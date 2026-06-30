@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Clock, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ContactPage() {
@@ -19,6 +19,7 @@ export default function ContactPage() {
             });
             if (!res.ok) throw new Error('Failed');
             setSent(true);
+            setForm({ name: '', email: '', subject: '', message: '' }); // Clear form
         } catch {
             toast.error('Failed to send message. Please try again.');
         } finally {
@@ -63,10 +64,12 @@ export default function ContactPage() {
                     <div className="md:col-span-2 card p-8 animate-slideInRight">
                         {sent ? (
                             <div className="text-center py-12 animate-scaleIn">
-                                <div className="text-5xl mb-4 animate-bounce-slow">💌</div>
-                                <h3 className="text-2xl font-bold mb-2" style={{ color: '#475d2a' }}>Message Sent!</h3>
-                                <p className="text-gray-500">We'll get back to you within 24 hours. Happy snacking!</p>
-                                <button onClick={() => setSent(false)} className="btn-outline mt-6">Send Another</button>
+                                <div className="mx-auto w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                    <CheckCircle className="w-12 h-12 text-green-600" />
+                                </div>
+                                <h3 className="text-3xl font-extrabold mb-2 text-[#475d2a]">Message Sent! 🎉</h3>
+                                <p className="text-gray-500 font-medium">We'll get back to you within 24 hours. Happy snacking!</p>
+                                <button onClick={() => setSent(false)} className="btn-outline mt-8">Send Another</button>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-4 animate-fadeInUp">

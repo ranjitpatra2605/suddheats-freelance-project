@@ -1,9 +1,10 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const path = require('path');
+const prisma = require('../models/db');
 const router = express.Router();
 
-// POST /api/contact — send customer message to admin email
+// POST /api/contact — send customer message to admin email and save to DB
 router.post('/', async (req, res) => {
     const { name, email, subject, message } = req.body;
 
@@ -12,6 +13,17 @@ router.post('/', async (req, res) => {
     }
 
     try {
+        // Save to Database
+        await prisma.contactQuery.create({
+            data: {
+                name,
+                email,
+                subject,
+                message
+            }
+        });
+        console.log('[Contact] Query saved to database successfully');
+
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -89,7 +101,7 @@ router.post('/', async (req, res) => {
 
         await transporter.sendMail({
             from: `"ShuddhEats Contact Form" <${process.env.GMAIL_USER}>`,
-            to: process.env.ADMIN_EMAIL || 'rog.rp24@gmail.com',
+            to: process.env.ADMIN_EMAIL || 'info@shuddheats.co.in',
             replyTo: email,
             subject: `[ShuddhEats Inquiry] ${subject}`,
             html: htmlContent,
@@ -101,11 +113,12 @@ router.post('/', async (req, res) => {
                 contentDisposition: 'inline'
             }]
         });
-
+        
+        console.log('[Contact] Email sent successfully');
         res.json({ success: true, message: 'Message sent successfully' });
     } catch (err) {
-        console.error('[Contact] Email error:', err.message);
-        res.status(500).json({ message: 'Failed to send message. Please try again.' });
+        console.error('[Contact] Error processing contact query:', err.message);
+        res.status(500).json({ message: 'Failed to send message. Please try again later.' });
     }
 });
 
