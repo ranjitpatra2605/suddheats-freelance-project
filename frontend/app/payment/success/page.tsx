@@ -41,21 +41,21 @@ function PaymentVerifyContent() {
                 const response = await api.get(`/payment/status/${orderId}`);
                 if (response.data.isPaid || response.data.status === 'PAID') {
                     setStatus('success');
-                    // Wait 3 seconds to show confetti, then redirect to order-success
+                    // Wait 3.5 seconds to show confetti, then redirect to orders page
                     setTimeout(() => {
-                        router.push(`/order-success?order_id=${orderId}`);
+                        router.push(`/dashboard`);
                     }, 3500);
                 } else {
                     setStatus('failed');
                     setTimeout(() => {
-                        router.push(`/payment-failed`);
+                        router.push(`/checkout`);
                     }, 2500);
                 }
             } catch (error) {
                 console.error("Error verifying payment status:", error);
                 setStatus('failed');
                 setTimeout(() => {
-                    router.push(`/payment-failed`);
+                    router.push(`/checkout`);
                 }, 2500);
             }
         };
@@ -87,7 +87,8 @@ function PaymentVerifyContent() {
                             <CheckCircle className="w-14 h-14 text-green-600" />
                         </div>
                         <h1 className="text-4xl font-extrabold text-[#475d2a] mb-4">Payment Successful! 🎉</h1>
-                        <p className="text-lg text-gray-600 mb-6 font-medium">Preparing your order details...</p>
+                        <p className="text-lg text-gray-600 mb-2 font-medium">Order ID: <span className="font-bold">{orderId}</span></p>
+                        <p className="text-sm text-gray-500 mb-6">Redirecting to your dashboard...</p>
                     </div>
                 </>
             )}

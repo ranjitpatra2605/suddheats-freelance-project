@@ -6,10 +6,8 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 
 const getCashfreeURL = () => {
-    // Default to production for real payments
-    return process.env.CASHFREE_ENV === 'SANDBOX' 
-        ? 'https://sandbox.cashfree.com/pg/orders' 
-        : 'https://api.cashfree.com/pg/orders';
+    // FORCE LIVE MODE for production payment flow
+    return 'https://api.cashfree.com/pg/orders';
 };
 
 // @POST /api/payment/create-order
@@ -30,8 +28,8 @@ router.post('/create-order', protect, async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        const returnUrl = `${process.env.FRONTEND_URL || req.headers.origin || 'https://suddheats-freelance-project.vercel.app'}/payment/verify?order_id={order_id}`;
-        console.log("Order Creation API called, return_url:", returnUrl);
+        const returnUrl = `${process.env.FRONTEND_URL || req.headers.origin || 'https://suddheats-freelance-project.vercel.app'}/payment/success?order_id={order_id}`;
+        console.log(`[CASHFREE] Order Creation API called for DB order: ${orderId}, return_url: ${returnUrl}`);
 
         // Call Cashfree API to create the order session
         const response = await fetch(getCashfreeURL(), {
@@ -49,9 +47,9 @@ router.post('/create-order', protect, async (req, res) => {
                 order_currency: 'INR',
                 customer_details: {
                     customer_id: order.user.id,
-                    customer_phone: order.user.phone || '9999999999',
-                    customer_email: order.user.email || 'customer@example.com',
-                    customer_name: order.user.name || 'Customer'
+                    customer_phone: order.user.phone,
+                    customer_email: order.user.email,
+                    customer_name: order.user.name
                 },
                 order_meta: {
                     // This will be called by frontend upon completion
@@ -112,12 +110,12 @@ router.post('/webhook', async (req, res) => {
         console.log('Valid Cashfree Webhook Received:', payload.type);
 
         // Extract order_id from payload.data.order (Cashfree 2023-08-01 format)
-        const cashfreeOrderId = payload.data?.order?.order_id || payload.data?.payment?.order_id;
+        const order_id = payload.data?.order?.order_id || payload.data?.payment?.order_id;
         
-        console.log('Webhook payload received. Extracted cashfreeOrderId:', cashfreeOrderId);
+        console.log(`[CASHFREE WEBHOOK] Payload received. Extracted order_id: ${order_id}`);
         
-        if (!cashfreeOrderId) {
-            console.error('Order ID not found in webhook payload:', JSON.stringify(payload));
+        if (!order_id) {
+            console.error('[CASHFREE WEBHOOK] Order ID not found in webhook payload:', JSON.stringify(payload));
             return res.status(200).json({ status: 'OK', message: 'Payload missing order_id' }); // Return 200 so cashfree stops retrying invalid payloads
         }
 
@@ -126,22 +124,22 @@ router.post('/webhook', async (req, res) => {
             const { payment_status } = payload.data.payment || {};
             
             if (payment_status === 'SUCCESS') {
-                const existingOrder = await prisma.order.findUnique({ where: { id: cashfreeOrderId } });
+                const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
                 
                 if (!existingOrder) {
-                    console.error(`Database order not found for cashfreeOrderId: ${cashfreeOrderId}`);
+                    console.error(`[CASHFREE WEBHOOK] Database order not found for order_id: ${order_id}`);
                     return res.status(404).json({ message: 'Order not found' });
                 }
                 
-                console.log(`Database order found: ${existingOrder.id}`);
+                console.log(`[CASHFREE WEBHOOK] Database order found: ${existingOrder.id}`);
 
                 if (existingOrder.isPaid) {
-                    console.log(`Order ${cashfreeOrderId} already PAID. Idempotency check passed. Ignoring webhook.`);
+                    console.log(`[CASHFREE WEBHOOK] Order ${order_id} already PAID. Idempotency check passed. Ignoring webhook.`);
                     return res.status(200).json({ status: 'OK' });
                 }
 
                 await prisma.order.update({
-                    where: { id: cashfreeOrderId },
+                    where: { id: order_id },
                     data: {
                         isPaid: true,
                         paidAt: new Date(),
@@ -149,24 +147,23 @@ router.post('/webhook', async (req, res) => {
                         paymentResult: payload
                     }
                 });
-                console.log(`Order ${cashfreeOrderId} updated successfully`);
-                console.log(`Webhook received -> Order ${cashfreeOrderId} updated -> Revenue updated`);
+                console.log(`[CASHFREE WEBHOOK SUCCESS] Order ${order_id} updated successfully. Revenue updated in real time.`);
             }
         } else if (payload.type === 'PAYMENT_FAILED_WEBHOOK' || payload.type === 'PAYMENT_USER_DROPPED_WEBHOOK') {
-            const existingOrder = await prisma.order.findUnique({ where: { id: cashfreeOrderId } });
+            const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
                 
             if (existingOrder && !existingOrder.isPaid) {
                 await prisma.order.update({
-                    where: { id: cashfreeOrderId },
+                    where: { id: order_id },
                     data: {
                         isPaid: false,
                         status: 'FAILED',
                         paymentResult: payload
                     }
                 });
-                console.log(`Webhook received -> Order ${cashfreeOrderId} marked as FAILED`);
+                console.log(`[CASHFREE WEBHOOK FAILED] Order ${order_id} marked as FAILED. Not marked as paid.`);
             } else if (!existingOrder) {
-                console.error(`Database order not found for failed cashfreeOrderId: ${cashfreeOrderId}`);
+                console.error(`[CASHFREE WEBHOOK] Database order not found for failed order_id: ${order_id}`);
             }
         }
 
