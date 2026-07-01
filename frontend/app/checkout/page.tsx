@@ -187,9 +187,9 @@ export default function CheckoutPage() {
                             orderId: backendOrderId,
                             amount: total,
                             currency: 'INR',
-                            customer_phone: form.phone || user.phone,
-                            customer_email: user.email,
-                            customer_name: form.fullName || user.name
+                            customer_phone: form.phone || user?.phone || '',
+                            customer_email: user?.email || '',
+                            customer_name: form.fullName || user?.name || ''
                         })
                     });
                     
