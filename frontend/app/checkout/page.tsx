@@ -16,10 +16,10 @@ function PaymentProcessingModal() {
                     <div className="w-12 h-12 border-4 border-gray-100 border-t-[#475d2a] rounded-full animate-spin"></div>
                 </div>
                 <div className="text-lg sm:text-xl font-bold mb-3" style={{ color: '#475d2a' }}>
-                    Connecting to Cashfree Secure Payment Gateway...
+                    Redirecting to Secure Payment...
                 </div>
                 <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                    Please wait while we securely redirect you to the payment page. Do not refresh or close this window.
+                    Please wait while we securely redirect you to the payment gateway. Do not refresh or close this page.
                 </p>
                 <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                     <div className="h-1.5 rounded-full w-full animate-pulse" style={{ background: 'linear-gradient(90deg, #475d2a, rgb(223, 196, 172))' }} />
@@ -118,10 +118,16 @@ export default function CheckoutPage() {
     const validate = () => {
         const e: Record<string, string> = {};
         if (!form.fullName) e.fullName = 'Required';
-        if (!form.phone || form.phone.length < 10) e.phone = 'Valid phone required';
+        
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!form.phone || !phoneRegex.test(form.phone)) {
+            e.phone = 'Valid 10-digit Indian mobile number required';
+        }
+        
         if (!form.addressLine1) e.addressLine1 = 'Required';
         if (!form.city) e.city = 'Required';
         if (!form.pincode || form.pincode.length !== 6) e.pincode = 'Valid 6-digit pincode required';
+        
         setErrors(e);
         return Object.keys(e).length === 0;
     };
@@ -130,6 +136,7 @@ export default function CheckoutPage() {
         e.preventDefault();
         if (!validate()) return;
         if (!user) { router.push('/auth/login?redirect=/checkout'); return; }
+        if (!user.email) { toast.error('Email is required for payment'); return; }
         if (items.length === 0) { toast.error('Cart is empty'); return; }
         
         if (paymentMethod === 'COD') {
@@ -179,7 +186,10 @@ export default function CheckoutPage() {
                         body: JSON.stringify({
                             orderId: backendOrderId,
                             amount: total,
-                            currency: 'INR'
+                            currency: 'INR',
+                            customer_phone: form.phone || user.phone,
+                            customer_email: user.email,
+                            customer_name: form.fullName || user.name
                         })
                     });
                     

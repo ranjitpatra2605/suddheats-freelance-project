@@ -14,7 +14,7 @@ const getCashfreeURL = () => {
 // Create Cashfree order and return payment session id
 router.post('/create-order', protect, async (req, res) => {
     try {
-        const { orderId } = req.body;
+        const { orderId, customer_phone, customer_email, customer_name } = req.body;
         if (!orderId) {
             return res.status(400).json({ message: 'Order ID is required' });
         }
@@ -31,6 +31,31 @@ router.post('/create-order', protect, async (req, res) => {
         const returnUrl = `${process.env.FRONTEND_URL || req.headers.origin || 'https://suddheats-freelance-project.vercel.app'}/payment/success?order_id={order_id}`;
         console.log(`[CASHFREE] Order Creation API called for DB order: ${orderId}, return_url: ${returnUrl}`);
 
+        const finalPhone = customer_phone || (order.shippingAddress && order.shippingAddress.phone) || order.user.phone;
+        const finalEmail = customer_email || order.user.email;
+        const finalName = customer_name || (order.shippingAddress && order.shippingAddress.fullName) || order.user.name;
+
+        if (!finalPhone || !/^[6-9]\d{9}$/.test(finalPhone.toString().trim())) {
+            return res.status(400).json({ message: 'customer_details.customer_phone is missing or invalid in the request. A valid 10-digit Indian mobile number is required.' });
+        }
+
+        const cashfreePayload = {
+            order_id: order.id,
+            order_amount: order.totalPrice,
+            order_currency: 'INR',
+            customer_details: {
+                customer_id: order.user.id,
+                customer_phone: finalPhone.toString().trim(),
+                customer_email: finalEmail,
+                customer_name: finalName
+            },
+            order_meta: {
+                return_url: returnUrl
+            }
+        };
+
+        console.log('[CASHFREE] Request Payload:', JSON.stringify(cashfreePayload, null, 2));
+
         // Call Cashfree API to create the order session
         const response = await fetch(getCashfreeURL(), {
             method: 'POST',
@@ -41,21 +66,7 @@ router.post('/create-order', protect, async (req, res) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({
-                order_id: order.id,
-                order_amount: order.totalPrice,
-                order_currency: 'INR',
-                customer_details: {
-                    customer_id: order.user.id,
-                    customer_phone: order.user.phone,
-                    customer_email: order.user.email,
-                    customer_name: order.user.name
-                },
-                order_meta: {
-                    // This will be called by frontend upon completion
-                    return_url: returnUrl
-                }
-            })
+            body: JSON.stringify(cashfreePayload)
         });
 
         const data = await response.json();
