@@ -8,32 +8,23 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { load } from '@cashfreepayments/cashfree-js';
 
-function PaymentProcessingModal({ onComplete }: { onComplete: (orderId: string) => void }) {
-    const [step, setStep] = useState(0);
-    const steps = [
-        { icon: '🔐', label: 'Securing connection...' },
-        { icon: '💳', label: 'Processing payment...' },
-        { icon: '✅', label: 'Payment confirmed!' },
-    ];
-
-    useEffect(() => {
-        const timers: ReturnType<typeof setTimeout>[] = [];
-        timers.push(setTimeout(() => setStep(1), 1000));
-        timers.push(setTimeout(() => setStep(2), 2200));
-        timers.push(setTimeout(() => onComplete('MOCK-' + Date.now()), 3400));
-        return () => timers.forEach(clearTimeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
+function PaymentProcessingModal() {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
-            <div className="card p-6 sm:p-10 max-w-sm w-full text-center animate-scaleIn">
-                <div className="text-4xl sm:text-5xl mb-3 sm:mb-4 animate-bounce-slow">{steps[step].icon}</div>
-                <div className="text-base sm:text-lg font-bold mb-4 sm:mb-6" style={{ color: '#475d2a' }}>{steps[step].label}</div>
-                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                    <div className="h-2 rounded-full transition-all duration-700" style={{ background: 'linear-gradient(90deg, #475d2a, rgb(223, 196, 172))', width: `${((step + 1) / 3) * 100}%` }} />
+            <div className="card p-6 sm:p-10 max-w-sm w-full text-center animate-scaleIn bg-white rounded-2xl shadow-xl">
+                <div className="flex justify-center mb-6">
+                    <div className="w-12 h-12 border-4 border-gray-100 border-t-[#475d2a] rounded-full animate-spin"></div>
                 </div>
-                <p className="text-xs text-gray-400 mt-3 sm:mt-4">ShuddhEats — Secure Checkout</p>
+                <div className="text-lg sm:text-xl font-bold mb-3" style={{ color: '#475d2a' }}>
+                    Connecting to Cashfree Secure Payment Gateway...
+                </div>
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                    Please wait while we securely redirect you to the payment page. Do not refresh or close this window.
+                </p>
+                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="h-1.5 rounded-full w-full animate-pulse" style={{ background: 'linear-gradient(90deg, #475d2a, rgb(223, 196, 172))' }} />
+                </div>
+                <p className="text-xs text-gray-400 mt-5">ShuddhEats — Secure Checkout</p>
             </div>
         </div>
     );
@@ -147,6 +138,7 @@ export default function CheckoutPage() {
         }
         
         setProcessing(true);
+        handlePaymentComplete('MOCK-' + Date.now());
     };
 
     const handlePaymentComplete = async (mockOrderId: string, overrideMethod?: string) => {
@@ -240,7 +232,7 @@ export default function CheckoutPage() {
         } catch { orderCreatedRef.current = false; }
     };
 
-    if (processing) return <PaymentProcessingModal onComplete={(id) => handlePaymentComplete(id)} />;
+    if (processing) return <PaymentProcessingModal />;
 
     if (items.length === 0) return (
         <div className="min-h-screen pt-24 flex items-center justify-center">
