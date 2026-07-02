@@ -76,8 +76,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const authRoutes = require('./routes/auth');
-const paymentRoutes = require('./routes/payment');
-
 app.use('/auth', authRoutes);
 app.use('/api/twofa', require('./routes/twofa'));
 app.use('/api/products', require('./routes/products'));
@@ -87,7 +85,7 @@ app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/upload', require('./routes/upload'));
-app.use('/api/payment', paymentRoutes);
+app.use('/api/payment', require('./routes/payment'));
 
 // Health check
 app.get('/', (req, res) => {
