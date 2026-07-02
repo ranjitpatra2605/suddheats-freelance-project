@@ -76,7 +76,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const authRoutes = require('./routes/auth');
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/twofa', require('./routes/twofa'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/cart', require('./routes/cart'));
