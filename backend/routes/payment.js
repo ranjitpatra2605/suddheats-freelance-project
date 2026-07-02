@@ -12,7 +12,7 @@ const getCashfreeURL = () => {
 
 // @POST /api/payment/create-order
 // Create Cashfree order and return payment session id
-router.post('/create-order', protect, async (req, res) => {
+router.post('/create-order', async (req, res) => {
     try {
         const { orderId, customer_phone, customer_email, customer_name } = req.body;
         if (!orderId) {
