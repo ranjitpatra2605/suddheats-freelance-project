@@ -75,6 +75,8 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded product images as static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+const paymentRoutes = require('./routes/payment');
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/twofa', require('./routes/twofa'));
 app.use('/api/products', require('./routes/products'));
@@ -84,7 +86,7 @@ app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/upload', require('./routes/upload'));
-app.use('/api/payment', require('./routes/payment'));
+app.use('/api/payment', paymentRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
