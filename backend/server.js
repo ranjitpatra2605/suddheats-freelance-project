@@ -75,9 +75,10 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded product images as static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+const authRoutes = require('./routes/auth');
 const paymentRoutes = require('./routes/payment');
 
-app.use('/api/auth', require('./routes/auth'));
+app.use('/auth', authRoutes);
 app.use('/api/twofa', require('./routes/twofa'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/cart', require('./routes/cart'));
@@ -89,6 +90,10 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/payment', paymentRoutes);
 
 // Health check
+app.get('/', (req, res) => {
+  res.status(200).send('Backend running');
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'ShuddhEats API is running', timestamp: new Date().toISOString() });
 });
