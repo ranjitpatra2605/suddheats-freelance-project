@@ -20,6 +20,12 @@ router.post('/register', async (req, res) => {
         // Debug logging
         console.log('📝 Register request:', { name, email, phone, hasPassword: !!password });
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+        if (!password || !passwordRegex.test(password)) {
+            console.log('⚠️ Weak password provided for:', email);
+            return res.status(400).json({ message: 'Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character' });
+        }
+
         const exists = await User.findUnique({ where: { email } });
         if (exists) {
             console.log('⚠️ User already exists:', email);
@@ -200,6 +206,10 @@ router.put('/profile', protect, async (req, res) => {
             phone: req.body.phone !== undefined ? req.body.phone : user.phone
         };
         if (req.body.password) {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+            if (!passwordRegex.test(req.body.password)) {
+                return res.status(400).json({ message: 'Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character' });
+            }
             updateData.password = await bcrypt.hash(req.body.password, 12);
         }
 
