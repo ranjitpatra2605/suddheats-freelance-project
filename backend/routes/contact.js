@@ -14,6 +14,7 @@ router.post('/', async (req, res) => {
 
     try {
         // Save to Database
+        console.log("Writing to database...");
         await prisma.contactQuery.create({
             data: {
                 name,
@@ -22,6 +23,7 @@ router.post('/', async (req, res) => {
                 message
             }
         });
+        console.log("Database write successful");
         console.log('[Contact] Query saved to database successfully');
 
         const transporter = nodemailer.createTransport({
@@ -119,8 +121,8 @@ router.post('/', async (req, res) => {
         console.log('[Contact] Email sent successfully');
         res.json({ success: true, message: 'Message sent successfully' });
     } catch (err) {
-        console.error('[Contact] Error processing contact query:', err.message);
-        res.status(500).json({ message: 'Failed to send message. Please try again later.' });
+        console.error('[Contact] Error processing contact query:', err);
+        res.status(500).json({ success: false, error: err.message, message: 'Failed to send message. Please try again later.' });
     }
 });
 

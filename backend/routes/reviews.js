@@ -16,6 +16,7 @@ router.post('/', protect, async (req, res) => {
         });
         if (existing) return res.status(400).json({ message: 'You already reviewed this product' });
 
+        console.log("Writing to database...");
         const review = await Review.create({
             data: {
                 userId: req.user.id,
@@ -25,10 +26,12 @@ router.post('/', protect, async (req, res) => {
                 comment
             }
         });
+        console.log("Database write successful");
 
         // Update product rating
         const reviews = await Review.findMany({ where: { productId } });
         const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+        console.log("Writing to database...");
         await Product.update({
             where: { id: productId },
             data: {
@@ -36,10 +39,12 @@ router.post('/', protect, async (req, res) => {
                 numReviews: reviews.length
             }
         });
+        console.log("Database write successful");
 
         res.status(201).json(review);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -59,7 +64,8 @@ router.get('/product/:productId', async (req, res) => {
         });
         res.json(reviews);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

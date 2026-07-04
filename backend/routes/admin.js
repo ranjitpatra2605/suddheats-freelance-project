@@ -116,25 +116,31 @@ router.get('/inventory', async (req, res) => {
 router.patch('/inventory/:id', async (req, res) => {
     try {
         const stock = parseInt(req.body.stock, 10);
+        console.log("Writing to database...");
         const product = await Product.update({
             where: { id: req.params.id },
             data: { stock: stock }
         });
+        console.log("Database write successful");
         res.json(product);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
 // @DELETE /api/admin/inventory/:id — delete product
 router.delete('/inventory/:id', async (req, res) => {
     try {
+        console.log("Writing to database...");
         const product = await Product.delete({
             where: { id: req.params.id }
         });
+        console.log("Database write successful");
         res.json({ message: 'Product deleted successfully', product });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -147,13 +153,16 @@ router.put('/orders/:id/status', async (req, res) => {
             updateData.isDelivered = true;
             updateData.deliveredAt = new Date();
         }
+        console.log("Writing to database...");
         const order = await Order.update({
             where: { id: req.params.id },
             data: updateData
         });
+        console.log("Database write successful");
         res.json(order);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

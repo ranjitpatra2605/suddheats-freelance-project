@@ -40,7 +40,7 @@ router.get('/', protect, async (req, res) => {
         res.json(populatedCart);
     } catch (err) {
         console.error("Cart GET Error:", err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -53,9 +53,11 @@ router.post('/', protect, async (req, res) => {
 
         let cart = await Cart.findUnique({ where: { userId: req.user.id } });
         if (!cart) {
+            console.log("Writing to database...");
             cart = await Cart.create({
                 data: { userId: req.user.id, items: [] }
             });
+            console.log("Database write successful");
         }
 
         const items = Array.isArray(cart.items) ? cart.items : [];
@@ -77,15 +79,18 @@ router.post('/', protect, async (req, res) => {
             });
         }
 
+        console.log("Writing to database...");
         const updatedCart = await Cart.update({
             where: { id: cart.id },
             data: { items }
         });
+        console.log("Database write successful");
 
         const populatedCart = await populateCartItems(updatedCart);
         res.json(populatedCart);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -103,10 +108,12 @@ router.post('/update-options', protect, async (req, res) => {
             items[itemIndex].packaging = packaging;
             items[itemIndex].price = price;
             
+            console.log("Writing to database...");
             const updatedCart = await Cart.update({
                 where: { id: cart.id },
                 data: { items }
             });
+            console.log("Database write successful");
 
             const populatedCart = await populateCartItems(updatedCart);
             return res.json(populatedCart);
@@ -114,7 +121,8 @@ router.post('/update-options', protect, async (req, res) => {
         
         res.status(404).json({ message: 'Item not found in cart' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -127,29 +135,35 @@ router.delete('/:productId', protect, async (req, res) => {
         const items = Array.isArray(cart.items) ? cart.items : [];
         const filteredItems = items.filter(i => i.product !== req.params.productId);
 
+        console.log("Writing to database...");
         const updatedCart = await Cart.update({
             where: { id: cart.id },
             data: { items: filteredItems }
         });
+        console.log("Database write successful");
 
         const populatedCart = await populateCartItems(updatedCart);
         res.json(populatedCart);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
 // @DELETE /api/cart — clear entire cart
 router.delete('/', protect, async (req, res) => {
     try {
+        console.log("Writing to database...");
         await Cart.upsert({
             where: { userId: req.user.id },
             update: { items: [] },
             create: { userId: req.user.id, items: [] }
         });
+        console.log("Database write successful");
         res.json({ message: 'Cart cleared' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

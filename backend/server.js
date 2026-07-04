@@ -92,8 +92,27 @@ app.get('/', (req, res) => {
   res.status(200).send('Backend running');
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'ShuddhEats API is running', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: 'OK',
+      message: 'ShuddhEats API is running',
+      database: 'Connected',
+      prisma: 'Connected',
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'ShuddhEats API is running but Database connection failed',
+      database: 'Disconnected',
+      error: error.message,
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 app.get('/health', (req, res) => {
@@ -116,7 +135,11 @@ const PORT = process.env.PORT || 5000;
 // Lazy-connect Prisma: We no longer wrap app.listen inside $connect
 // This prevents the server from crashing if the DB is temporarily unavailable at startup
 prisma.$connect()
-  .then(() => console.log('✅ Database Connected'))
+  .then(() => {
+    console.log('✅ Database URL loaded successfully');
+    console.log('✅ Prisma connected successfully');
+    console.log('✅ Connected to PostgreSQL');
+  })
   .catch((err) => console.error('❌ Database connection error (App is still running):', err.message));
 
 app.listen(PORT, '0.0.0.0', () => {

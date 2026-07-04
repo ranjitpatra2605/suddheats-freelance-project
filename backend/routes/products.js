@@ -41,7 +41,8 @@ router.get('/', async (req, res) => {
         });
         res.json(products);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -52,7 +53,8 @@ router.get('/:slug', async (req, res) => {
         if (!product) return res.status(404).json({ message: 'Product not found' });
         res.json(product);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -68,10 +70,13 @@ router.post('/', protect, adminOnly, async (req, res) => {
         if (data.isFeatured !== undefined) data.isFeatured = data.isFeatured === 'true' || data.isFeatured === true;
         if (data.isBestSeller !== undefined) data.isBestSeller = data.isBestSeller === 'true' || data.isBestSeller === true;
 
+        console.log("Writing to database...");
         const product = await Product.create({ data });
+        console.log("Database write successful");
         res.status(201).json(product);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -87,23 +92,29 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
         if (data.isFeatured !== undefined) data.isFeatured = data.isFeatured === 'true' || data.isFeatured === true;
         if (data.isBestSeller !== undefined) data.isBestSeller = data.isBestSeller === 'true' || data.isBestSeller === true;
 
+        console.log("Writing to database...");
         const product = await Product.update({
             where: { id: req.params.id },
             data: data
         });
+        console.log("Database write successful");
         res.json(product);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
 // @DELETE /api/products/:id — admin only
 router.delete('/:id', protect, adminOnly, async (req, res) => {
     try {
+        console.log("Writing to database...");
         await Product.delete({ where: { id: req.params.id } });
+        console.log("Database write successful");
         res.json({ message: 'Product deleted' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

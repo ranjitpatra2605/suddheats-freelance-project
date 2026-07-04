@@ -19,6 +19,8 @@ model User {
   twoFactorSecret   String?  @map("two_factor_secret")
   backupCodes       Json     @default("[]") @map("backup_codes")
   createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+  lastLogin         DateTime? @map("last_login")
   cart              Cart?
   orders            Order[]
   reviews           Review[]
@@ -47,6 +49,7 @@ model Product {
   ratings          Float    @default(0)
   numReviews       Int      @default(0) @map("num_reviews")
   createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
   reviews          Review[]
 
   @@map("products")
@@ -80,6 +83,7 @@ model Order {
   deliveredAt     DateTime? @map("delivered_at")
   paymentResult   Json?     @map("payment_result")
   createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
 
   @@map("orders")
 }
@@ -94,6 +98,7 @@ model Review {
   rating    Int
   comment   String
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("reviews")
 }
@@ -105,6 +110,7 @@ model ContactQuery {
   subject   String
   message   String
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("contact_queries")
 }

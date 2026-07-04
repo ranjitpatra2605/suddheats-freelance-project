@@ -19,6 +19,7 @@ router.post('/', protect, async (req, res) => {
         let finalTotalPrice = parseFloat(totalPrice) - receivedShippingPrice + correctShippingPrice;
 
         // Run stock decrement, order creation, and cart clearance in a transaction
+        console.log("Writing to database...");
         const order = await prisma.$transaction(async (tx) => {
             // Reduce stock
             for (const item of items) {
@@ -50,10 +51,12 @@ router.post('/', protect, async (req, res) => {
 
             return newOrder;
         });
+        console.log("Database write successful");
 
         res.status(201).json(order);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -121,6 +124,7 @@ router.get('/:id', protect, async (req, res) => {
 // @PUT /api/orders/:id/pay — mark as paid (called after payment verify)
 router.put('/:id/pay', protect, async (req, res) => {
     try {
+        console.log("Writing to database...");
         const order = await Order.update({
             where: { id: req.params.id },
             data: {
@@ -139,9 +143,11 @@ router.put('/:id/pay', protect, async (req, res) => {
                 }
             }
         });
+        console.log("Database write successful");
         res.json(order);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -154,13 +160,16 @@ router.put('/:id/status', protect, adminOnly, async (req, res) => {
             updateData.isDelivered = true;
             updateData.deliveredAt = new Date();
         }
+        console.log("Writing to database...");
         const order = await Order.update({
             where: { id: req.params.id },
             data: updateData
         });
+        console.log("Database write successful");
         res.json(order);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

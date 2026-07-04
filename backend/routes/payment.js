@@ -79,7 +79,7 @@ router.post('/create-order', async (req, res) => {
         res.json({ payment_session_id: data.payment_session_id });
     } catch (err) {
         console.error('Create Order Exception:', err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ success: false, error: err.message, message: err.message });
     }
 });
 
@@ -149,6 +149,7 @@ router.post('/webhook', async (req, res) => {
                     return res.status(200).json({ status: 'OK' });
                 }
 
+                console.log("Writing to database...");
                 await prisma.order.update({
                     where: { id: order_id },
                     data: {
@@ -158,12 +159,14 @@ router.post('/webhook', async (req, res) => {
                         paymentResult: payload
                     }
                 });
+                console.log("Database write successful");
                 console.log(`[CASHFREE WEBHOOK SUCCESS] Order ${order_id} updated successfully. Revenue updated in real time.`);
             }
         } else if (payload.type === 'PAYMENT_FAILED_WEBHOOK' || payload.type === 'PAYMENT_USER_DROPPED_WEBHOOK') {
             const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
                 
             if (existingOrder && !existingOrder.isPaid) {
+                console.log("Writing to database...");
                 await prisma.order.update({
                     where: { id: order_id },
                     data: {
@@ -172,6 +175,7 @@ router.post('/webhook', async (req, res) => {
                         paymentResult: payload
                     }
                 });
+                console.log("Database write successful");
                 console.log(`[CASHFREE WEBHOOK FAILED] Order ${order_id} marked as FAILED. Not marked as paid.`);
             } else if (!existingOrder) {
                 console.error(`[CASHFREE WEBHOOK] Database order not found for failed order_id: ${order_id}`);
@@ -182,7 +186,7 @@ router.post('/webhook', async (req, res) => {
         res.status(200).json({ status: 'OK' });
     } catch (err) {
         console.error('Webhook Error:', err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ success: false, error: err.message, message: err.message });
     }
 });
 
@@ -203,7 +207,7 @@ router.get('/status/:orderId', async (req, res) => {
         res.json({ isPaid: order.isPaid, status: order.status });
     } catch (err) {
         console.error('Fetch Order Status Error:', err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ success: false, error: err.message, message: err.message });
     }
 });
 

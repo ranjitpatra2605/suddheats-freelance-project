@@ -33,9 +33,11 @@ router.post('/register', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
+        console.log("Writing to database...");
         const user = await User.create({
             data: { name, email, password: hashedPassword, phone }
         });
+        console.log("Database write successful");
         console.log('✅ User registered:', { id: user.id, email: user.email });
 
         res.status(201).json({
@@ -46,8 +48,8 @@ router.post('/register', async (req, res) => {
             token: generateToken(user.id)
         });
     } catch (err) {
-        console.error('❌ Register error:', err.message);
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -98,6 +100,13 @@ router.post('/login', async (req, res) => {
         }
 
         // Normal login (user or admin without 2FA)
+        console.log("Writing to database...");
+        await User.update({
+            where: { id: user.id },
+            data: { lastLogin: new Date() }
+        });
+        console.log("Database write successful");
+
         res.json({
             id: user.id,
             name: user.name,
@@ -106,8 +115,8 @@ router.post('/login', async (req, res) => {
             token: generateToken(user.id)
         });
     } catch (err) {
-        console.error('❌ Login error:', err.message);
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -144,10 +153,12 @@ router.post('/verify-2fa', async (req, res) => {
         if (backupCodeIndex !== -1) {
             // Valid backup code, remove it (single use)
             backupCodesArray.splice(backupCodeIndex, 1);
+            console.log("Writing to database...");
             const updatedUser = await User.update({
                 where: { id: user.id },
-                data: { backupCodes: backupCodesArray }
+                data: { backupCodes: backupCodesArray, lastLogin: new Date() }
             });
+            console.log("Database write successful");
             return res.json({
                 id: updatedUser.id,
                 name: updatedUser.name,
@@ -170,6 +181,13 @@ router.post('/verify-2fa', async (req, res) => {
             return res.status(401).json({ message: 'Invalid authenticator code' });
         }
 
+        console.log("Writing to database...");
+        await User.update({
+            where: { id: user.id },
+            data: { lastLogin: new Date() }
+        });
+        console.log("Database write successful");
+
         // Return JWT token
         res.json({
             id: user.id,
@@ -179,7 +197,8 @@ router.post('/verify-2fa', async (req, res) => {
             token: generateToken(user.id)
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -191,7 +210,8 @@ router.get('/profile', protect, async (req, res) => {
         const { password, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -213,10 +233,12 @@ router.put('/profile', protect, async (req, res) => {
             updateData.password = await bcrypt.hash(req.body.password, 12);
         }
 
+        console.log("Writing to database...");
         const updated = await User.update({
             where: { id: req.user.id },
             data: updateData
         });
+        console.log("Database write successful");
 
         res.json({
             id: updated.id,
@@ -226,7 +248,8 @@ router.put('/profile', protect, async (req, res) => {
             token: generateToken(updated.id)
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
