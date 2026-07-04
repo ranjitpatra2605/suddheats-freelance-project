@@ -16,7 +16,7 @@ router.post('/', protect, async (req, res) => {
         });
         if (existing) return res.status(400).json({ message: 'You already reviewed this product' });
 
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const review = await Review.create({
             data: {
                 userId: req.user.id,
@@ -31,7 +31,7 @@ router.post('/', protect, async (req, res) => {
         // Update product rating
         const reviews = await Review.findMany({ where: { productId } });
         const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         await Product.update({
             where: { id: productId },
             data: {
@@ -42,9 +42,15 @@ router.post('/', protect, async (req, res) => {
         console.log("Database write successful");
 
         res.status(201).json(review);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -63,9 +69,15 @@ router.get('/product/:productId', async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
         res.json(reviews);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

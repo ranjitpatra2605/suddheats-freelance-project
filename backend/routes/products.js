@@ -11,16 +11,20 @@ router.get('/', async (req, res) => {
         const { category, search, sort, featured, bestseller } = req.query;
 
         if (featured === 'true') {
+            console.log("Executing Prisma query...");
             const products = await Product.findMany({
                 where: { isFeatured: true }
             });
+            console.log("Database write successful");
             return res.json(products);
         }
 
         if (bestseller === 'true') {
+            console.log("Executing Prisma query...");
             const products = await Product.findMany({
                 where: { isBestSeller: true }
             });
+            console.log("Database write successful");
             return res.json(products);
         }
 
@@ -35,26 +39,42 @@ router.get('/', async (req, res) => {
         else if (sort === 'price_desc') orderBy = { price: 'desc' };
         else if (sort === 'rating') orderBy = { ratings: 'desc' };
 
+        console.log("Executing Prisma query...");
         const products = await Product.findMany({
             where: filter,
             orderBy: orderBy
         });
+        console.log("Database write successful");
         res.json(products);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
 // @GET /api/products/:slug — public
 router.get('/:slug', async (req, res) => {
     try {
+        console.log("Executing Prisma query...");
         const product = await Product.findUnique({ where: { slug: req.params.slug } });
+        console.log("Database write successful");
         if (!product) return res.status(404).json({ message: 'Product not found' });
         res.json(product);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -70,13 +90,19 @@ router.post('/', protect, adminOnly, async (req, res) => {
         if (data.isFeatured !== undefined) data.isFeatured = data.isFeatured === 'true' || data.isFeatured === true;
         if (data.isBestSeller !== undefined) data.isBestSeller = data.isBestSeller === 'true' || data.isBestSeller === true;
 
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const product = await Product.create({ data });
         console.log("Database write successful");
         res.status(201).json(product);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -92,29 +118,41 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
         if (data.isFeatured !== undefined) data.isFeatured = data.isFeatured === 'true' || data.isFeatured === true;
         if (data.isBestSeller !== undefined) data.isBestSeller = data.isBestSeller === 'true' || data.isBestSeller === true;
 
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const product = await Product.update({
             where: { id: req.params.id },
             data: data
         });
         console.log("Database write successful");
         res.json(product);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
 // @DELETE /api/products/:id — admin only
 router.delete('/:id', protect, adminOnly, async (req, res) => {
     try {
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         await Product.delete({ where: { id: req.params.id } });
         console.log("Database write successful");
         res.json({ message: 'Product deleted' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

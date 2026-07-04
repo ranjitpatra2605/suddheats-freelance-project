@@ -35,8 +35,15 @@ router.get('/dashboard', async (req, res) => {
             take: 5
         });
         res.json({ totalOrders, totalProducts, totalUsers, totalRevenue, recentOrders });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -45,8 +52,15 @@ router.get('/products', async (req, res) => {
     try {
         const products = await Product.findMany({ orderBy: { createdAt: 'desc' } });
         res.json(products);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -66,8 +80,15 @@ router.get('/orders', async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
         res.json(orders);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -87,8 +108,15 @@ router.get('/users', async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
         res.json(users);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -107,8 +135,15 @@ router.get('/inventory', async (req, res) => {
             }
         });
         res.json(products);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -116,31 +151,43 @@ router.get('/inventory', async (req, res) => {
 router.patch('/inventory/:id', async (req, res) => {
     try {
         const stock = parseInt(req.body.stock, 10);
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const product = await Product.update({
             where: { id: req.params.id },
             data: { stock: stock }
         });
         console.log("Database write successful");
         res.json(product);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
 // @DELETE /api/admin/inventory/:id — delete product
 router.delete('/inventory/:id', async (req, res) => {
     try {
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const product = await Product.delete({
             where: { id: req.params.id }
         });
         console.log("Database write successful");
         res.json({ message: 'Product deleted successfully', product });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -153,16 +200,22 @@ router.put('/orders/:id/status', async (req, res) => {
             updateData.isDelivered = true;
             updateData.deliveredAt = new Date();
         }
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const order = await Order.update({
             where: { id: req.params.id },
             data: updateData
         });
         console.log("Database write successful");
         res.json(order);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -171,8 +224,15 @@ router.get('/queries', async (req, res) => {
     try {
         const queries = await ContactQuery.findMany({ orderBy: { createdAt: 'desc' } });
         res.json(queries);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

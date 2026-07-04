@@ -19,7 +19,7 @@ router.post('/', protect, async (req, res) => {
         let finalTotalPrice = parseFloat(totalPrice) - receivedShippingPrice + correctShippingPrice;
 
         // Run stock decrement, order creation, and cart clearance in a transaction
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const order = await prisma.$transaction(async (tx) => {
             // Reduce stock
             for (const item of items) {
@@ -54,9 +54,15 @@ router.post('/', protect, async (req, res) => {
         console.log("Database write successful");
 
         res.status(201).json(order);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -68,8 +74,15 @@ router.get('/myorders', protect, async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
         res.json(orders);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -91,8 +104,15 @@ router.get('/track/:id', async (req, res) => {
         });
         if (!order) return res.status(404).json({ message: 'Order not found' });
         res.json(order);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -116,15 +136,22 @@ router.get('/:id', protect, async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
         res.json(order);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
 // @PUT /api/orders/:id/pay — mark as paid (called after payment verify)
 router.put('/:id/pay', protect, async (req, res) => {
     try {
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const order = await Order.update({
             where: { id: req.params.id },
             data: {
@@ -145,9 +172,15 @@ router.put('/:id/pay', protect, async (req, res) => {
         });
         console.log("Database write successful");
         res.json(order);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -160,16 +193,22 @@ router.put('/:id/status', protect, adminOnly, async (req, res) => {
             updateData.isDelivered = true;
             updateData.deliveredAt = new Date();
         }
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const order = await Order.update({
             where: { id: req.params.id },
             data: updateData
         });
         console.log("Database write successful");
         res.json(order);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -189,8 +228,15 @@ router.get('/', protect, adminOnly, async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
         res.json(orders);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

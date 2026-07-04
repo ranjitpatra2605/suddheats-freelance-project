@@ -16,6 +16,13 @@ process.on('unhandledRejection', (err) => {
 
 dotenv.config();
 
+console.log("DATABASE_URL Loaded:", !!process.env.DATABASE_URL);
+console.log("JWT_SECRET Loaded:", !!process.env.JWT_SECRET);
+if (!process.env.DATABASE_URL || !process.env.JWT_SECRET) {
+  console.error("❌ CRITICAL ERROR: Missing required environment variables.");
+  process.exit(1);
+}
+
 const app = express();
 
 // Get local IP address for network access
@@ -96,12 +103,10 @@ app.get('/api/health', async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.json({
-      status: 'OK',
-      message: 'ShuddhEats API is running',
-      database: 'Connected',
-      prisma: 'Connected',
-      environment: process.env.NODE_ENV || 'development',
-      timestamp: new Date().toISOString()
+      status: 'ok',
+      database: 'connected',
+      prisma: 'connected',
+      environment: 'loaded'
     });
   } catch (error) {
     res.status(500).json({
@@ -136,11 +141,14 @@ const PORT = process.env.PORT || 5000;
 // This prevents the server from crashing if the DB is temporarily unavailable at startup
 prisma.$connect()
   .then(() => {
-    console.log('✅ Database URL loaded successfully');
-    console.log('✅ Prisma connected successfully');
-    console.log('✅ Connected to PostgreSQL');
+    console.log('✅ PostgreSQL Connected');
+    console.log('✅ Prisma Connected');
   })
-  .catch((err) => console.error('❌ Database connection error (App is still running):', err.message));
+  .catch((err) => {
+    console.error('❌ Database connection error:');
+    console.error(err);
+    console.error(err.stack);
+  });
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 ShuddhEats Server running on:`);

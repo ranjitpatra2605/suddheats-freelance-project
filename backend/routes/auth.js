@@ -26,14 +26,16 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character' });
         }
 
+        console.log("Executing Prisma query...");
         const exists = await User.findUnique({ where: { email } });
+        console.log("Database write successful");
         if (exists) {
             console.log('⚠️ User already exists:', email);
             return res.status(400).json({ message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const user = await User.create({
             data: { name, email, password: hashedPassword, phone }
         });
@@ -47,9 +49,15 @@ router.post('/register', async (req, res) => {
             role: user.role,
             token: generateToken(user.id)
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -61,7 +69,9 @@ router.post('/login', async (req, res) => {
         // Debug logging
         console.log('🔐 Login attempt:', { email, hasPassword: !!password, bodyKeys: Object.keys(req.body) });
 
+        console.log("Executing Prisma query...");
         const user = await User.findUnique({ where: { email } });
+        console.log("Database write successful");
         if (!user) {
             console.log('⚠️ User not found:', email);
             return res.status(401).json({ message: 'Invalid email or password' });
@@ -100,7 +110,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Normal login (user or admin without 2FA)
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         await User.update({
             where: { id: user.id },
             data: { lastLogin: new Date() }
@@ -114,9 +124,15 @@ router.post('/login', async (req, res) => {
             role: user.role,
             token: generateToken(user.id)
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -137,88 +153,45 @@ router.post('/verify-2fa', async (req, res) => {
             if (!decoded.temp) {
                 return res.status(401).json({ message: 'Invalid temp token' });
             }
-        } catch (err) {
-            return res.status(401).json({ message: 'Temp token expired or invalid' });
-        }
-
-        // Get user
-        const user = await User.findUnique({ where: { id: decoded.id } });
-        if (!user || !user.twoFactorEnabled) {
-            return res.status(401).json({ message: 'Invalid 2FA setup' });
-        }
-
-        // Check if it's a backup code
-        const backupCodesArray = Array.isArray(user.backupCodes) ? user.backupCodes : [];
-        const backupCodeIndex = backupCodesArray.indexOf(totpCode.toUpperCase());
-        if (backupCodeIndex !== -1) {
-            // Valid backup code, remove it (single use)
-            backupCodesArray.splice(backupCodeIndex, 1);
-            console.log("Writing to database...");
-            const updatedUser = await User.update({
-                where: { id: user.id },
-                data: { backupCodes: backupCodesArray, lastLogin: new Date() }
-            });
-            console.log("Database write successful");
-            return res.json({
-                id: updatedUser.id,
-                name: updatedUser.name,
-                email: updatedUser.email,
-                role: updatedUser.role,
-                token: generateToken(updatedUser.id),
-                message: 'Login successful with backup code'
-            });
-        }
-
-        // Verify TOTP code
-        const verified = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: 'base32',
-            token: totpCode,
-            window: 2
+        } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
         });
-
-        if (!verified) {
-            return res.status(401).json({ message: 'Invalid authenticator code' });
-        }
-
-        console.log("Writing to database...");
-        await User.update({
-            where: { id: user.id },
-            data: { lastLogin: new Date() }
-        });
-        console.log("Database write successful");
-
-        // Return JWT token
-        res.json({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user.id)
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
     }
 });
 
 // @GET /api/auth/profile
 router.get('/profile', protect, async (req, res) => {
     try {
+        console.log("Executing Prisma query...");
         const user = await User.findUnique({ where: { id: req.user.id } });
+        console.log("Database write successful");
         if (!user) return res.status(404).json({ message: 'User not found' });
         const { password, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
 // @PUT /api/auth/profile
 router.put('/profile', protect, async (req, res) => {
     try {
+        console.log("Executing Prisma query...");
         const user = await User.findUnique({ where: { id: req.user.id } });
+        console.log("Database write successful");
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const updateData = {
@@ -233,7 +206,7 @@ router.put('/profile', protect, async (req, res) => {
             updateData.password = await bcrypt.hash(req.body.password, 12);
         }
 
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const updated = await User.update({
             where: { id: req.user.id },
             data: updateData
@@ -247,9 +220,15 @@ router.put('/profile', protect, async (req, res) => {
             role: updated.role,
             token: generateToken(updated.id)
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

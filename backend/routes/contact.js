@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
 
     try {
         // Save to Database
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         await prisma.contactQuery.create({
             data: {
                 name,
@@ -120,9 +120,15 @@ router.post('/', async (req, res) => {
         
         console.log('[Contact] Email sent successfully');
         res.json({ success: true, message: 'Message sent successfully' });
-    } catch (err) {
-        console.error('[Contact] Error processing contact query:', err);
-        res.status(500).json({ success: false, error: err.message, message: 'Failed to send message. Please try again later.' });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

@@ -45,8 +45,15 @@ router.post('/setup', protect, adminOnly, async (req, res) => {
             backupCodes,
             secret: secret.base32
         });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -89,8 +96,15 @@ router.post('/verify-setup', protect, adminOnly, async (req, res) => {
             message: '2FA enabled successfully',
             backupCodes
         });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -127,8 +141,15 @@ router.post('/disable', protect, adminOnly, async (req, res) => {
             success: true,
             message: '2FA disabled successfully'
         });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -176,8 +197,15 @@ router.post('/verify', async (req, res) => {
             success: true,
             message: 'Verified successfully'
         });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

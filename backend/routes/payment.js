@@ -77,9 +77,15 @@ router.post('/create-order', async (req, res) => {
         }
 
         res.json({ payment_session_id: data.payment_session_id });
-    } catch (err) {
-        console.error('Create Order Exception:', err);
-        res.status(500).json({ success: false, error: err.message, message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -149,7 +155,7 @@ router.post('/webhook', async (req, res) => {
                     return res.status(200).json({ status: 'OK' });
                 }
 
-                console.log("Writing to database...");
+                console.log("Executing Prisma query...");
                 await prisma.order.update({
                     where: { id: order_id },
                     data: {
@@ -166,7 +172,7 @@ router.post('/webhook', async (req, res) => {
             const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
                 
             if (existingOrder && !existingOrder.isPaid) {
-                console.log("Writing to database...");
+                console.log("Executing Prisma query...");
                 await prisma.order.update({
                     where: { id: order_id },
                     data: {
@@ -184,9 +190,15 @@ router.post('/webhook', async (req, res) => {
 
         // Always acknowledge webhook immediately with 200 OK
         res.status(200).json({ status: 'OK' });
-    } catch (err) {
-        console.error('Webhook Error:', err);
-        res.status(500).json({ success: false, error: err.message, message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -205,9 +217,15 @@ router.get('/status/:orderId', async (req, res) => {
         }
 
         res.json({ isPaid: order.isPaid, status: order.status });
-    } catch (err) {
-        console.error('Fetch Order Status Error:', err);
-        res.status(500).json({ success: false, error: err.message, message: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 

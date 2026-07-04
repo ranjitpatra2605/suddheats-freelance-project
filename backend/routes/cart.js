@@ -38,9 +38,15 @@ router.get('/', protect, async (req, res) => {
         }
         const populatedCart = await populateCartItems(cart);
         res.json(populatedCart);
-    } catch (err) {
-        console.error("Cart GET Error:", err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -53,7 +59,7 @@ router.post('/', protect, async (req, res) => {
 
         let cart = await Cart.findUnique({ where: { userId: req.user.id } });
         if (!cart) {
-            console.log("Writing to database...");
+            console.log("Executing Prisma query...");
             cart = await Cart.create({
                 data: { userId: req.user.id, items: [] }
             });
@@ -79,7 +85,7 @@ router.post('/', protect, async (req, res) => {
             });
         }
 
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const updatedCart = await Cart.update({
             where: { id: cart.id },
             data: { items }
@@ -88,9 +94,15 @@ router.post('/', protect, async (req, res) => {
 
         const populatedCart = await populateCartItems(updatedCart);
         res.json(populatedCart);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -108,7 +120,7 @@ router.post('/update-options', protect, async (req, res) => {
             items[itemIndex].packaging = packaging;
             items[itemIndex].price = price;
             
-            console.log("Writing to database...");
+            console.log("Executing Prisma query...");
             const updatedCart = await Cart.update({
                 where: { id: cart.id },
                 data: { items }
@@ -120,9 +132,15 @@ router.post('/update-options', protect, async (req, res) => {
         }
         
         res.status(404).json({ message: 'Item not found in cart' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
@@ -135,7 +153,7 @@ router.delete('/:productId', protect, async (req, res) => {
         const items = Array.isArray(cart.items) ? cart.items : [];
         const filteredItems = items.filter(i => i.product !== req.params.productId);
 
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         const updatedCart = await Cart.update({
             where: { id: cart.id },
             data: { items: filteredItems }
@@ -144,16 +162,22 @@ router.delete('/:productId', protect, async (req, res) => {
 
         const populatedCart = await populateCartItems(updatedCart);
         res.json(populatedCart);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
 // @DELETE /api/cart — clear entire cart
 router.delete('/', protect, async (req, res) => {
     try {
-        console.log("Writing to database...");
+        console.log("Executing Prisma query...");
         await Cart.upsert({
             where: { userId: req.user.id },
             update: { items: [] },
@@ -161,9 +185,15 @@ router.delete('/', protect, async (req, res) => {
         });
         console.log("Database write successful");
         res.json({ message: 'Cart cleared' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, error: err.message });
+    } catch (error) {
+        console.error(error);
+        console.error(error.stack);
+    
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 });
 
