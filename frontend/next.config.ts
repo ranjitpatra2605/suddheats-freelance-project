@@ -2,12 +2,17 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    domains: [
+      'suddheats-freelance-project-production-b773.up.railway.app',
+      'res.cloudinary.com'
+    ],
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
       { protocol: 'http', hostname: '**' },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
+    unoptimized: true,
   },
   logging: {
     fetches: {

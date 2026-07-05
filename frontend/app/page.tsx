@@ -125,8 +125,16 @@ export default function HomePage() {
   useEffect(() => {
     const fetchHomeProducts = async () => {
       try {
-        const { data } = await api.get('/products');
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://suddheats-freelance-project-production-b773.up.railway.app';
+        console.log('Fetching products from:', backendUrl);
+        const res = await fetch(`${backendUrl}/api/products`, { cache: 'no-store' });
+        const data = await res.json();
         const products = data.products || data;
+        if (products && products.length > 0) {
+            console.log('API response arrives. Products array is not empty:', products.length);
+        } else {
+            console.log('API response arrives but Products array is empty.');
+        }
         setFeatured(products.filter((p: any) => p.isFeatured));
         setBestsellers(products.filter((p: any) => p.isBestSeller).slice(0, 4));
       } catch (err) {

@@ -177,7 +177,7 @@ export default function CheckoutPage() {
                     console.log("Creating order...");
                     const token = localStorage.getItem('shuddheats_token');
                     
-                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://suddheats-freelance-project-production.up.railway.app';
+                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://suddheats-freelance-project-production-b773.up.railway.app';
                     const response = await fetch(`${baseUrl}/api/payment/create-order`, {
                         method: 'POST',
                         headers: {
