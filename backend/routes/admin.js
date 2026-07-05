@@ -1,39 +1,50 @@
-const express = require("express");
-const router = express.Router();
-const speakeasy = require("speakeasy");
-const QRCode = require("qrcode");
+const express = require('express');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { authMiddleware, adminOnly } = require("../middleware/auth");
+const adminOnly = require('../middleware/adminOnly');
 
-// Defensive check to catch undefined middleware early
-if (!authMiddleware || typeof authMiddleware !== 'function') {
-  console.error("🚨 CRITICAL ERROR: authMiddleware is undefined or not a function in routes/admin.js!");
-}
-if (!adminOnly || typeof adminOnly !== 'function') {
-  console.error("🚨 CRITICAL ERROR: adminOnly is undefined or not a function in routes/admin.js!");
-}
+const router = express.Router();
 
 /**
- * Enable 2FA (ADMIN ONLY)
+ * ADMIN 2FA SETUP
+ * POST /api/admin/2fa/setup
  */
-router.post("/enable-2fa", authMiddleware, adminOnly, async (req, res) => {
-  const secret = speakeasy.generateSecret({ length: 20 });
+router.post('/2fa/setup', adminOnly, async (req, res) => {
+  try {
+    const adminId = req.user.id;
 
-  await prisma.user.update({
-    where: { id: req.user.id },
-    data: {
-      twoFASecret: secret.base32,
-      twoFAEnabled: true,
-    },
-  });
+    // Generate secret
+    const secret = speakeasy.generateSecret({
+      length: 20,
+      name: `Shuddheats-ADMIN (${req.user.email})`
+    });
 
-  const qr = await QRCode.toDataURL(secret.otpauth_url);
+    // 🔑 THIS IS THE KEY YOU WANT
+    console.log('🔐 ADMIN 2FA BASE32 SECRET:', secret.base32);
 
-  res.json({
-    qr,
-    manualKey: secret.base32,
-  });
+    // Save Base32 secret in DB
+    await prisma.user.update({
+      where: { id: adminId },
+      data: {
+        twoFASecret: secret.base32,
+        twoFAEnabled: true
+      }
+    });
+
+    // Generate QR code
+    const qrCode = await QRCode.toDataURL(secret.otpauth_url);
+
+    res.json({
+      message: 'Admin 2FA initialized',
+      qrCode
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '2FA setup failed' });
+  }
 });
 
 module.exports = router;

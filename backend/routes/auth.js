@@ -81,17 +81,22 @@ router.post('/login', async (req, res) => {
   // 🔐 ADMIN + 2FA ONLY
   if (user.role === "ADMIN" && user.twoFAEnabled) {
     if (!token) {
-      return res.status(206).json({ twoFARequired: true });
+      return res.status(401).json({
+        message: '2FA token required'
+      });
     }
 
     const verified = speakeasy.totp.verify({
       secret: user.twoFASecret,
       encoding: "base32",
-      token,
+      token: req.body.token,
+      window: 1
     });
 
     if (!verified) {
-      return res.status(401).json({ message: "Invalid 2FA code" });
+      return res.status(401).json({
+        message: 'Invalid 2FA token'
+      });
     }
   }
 
