@@ -25,7 +25,7 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect };
+exports.protect = protect;
 
 exports.authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];

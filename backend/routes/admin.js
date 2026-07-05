@@ -6,6 +6,14 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { authMiddleware, adminOnly } = require("../middleware/auth");
 
+// Defensive check to catch undefined middleware early
+if (!authMiddleware || typeof authMiddleware !== 'function') {
+  console.error("🚨 CRITICAL ERROR: authMiddleware is undefined or not a function in routes/admin.js!");
+}
+if (!adminOnly || typeof adminOnly !== 'function') {
+  console.error("🚨 CRITICAL ERROR: adminOnly is undefined or not a function in routes/admin.js!");
+}
+
 /**
  * Enable 2FA (ADMIN ONLY)
  */
