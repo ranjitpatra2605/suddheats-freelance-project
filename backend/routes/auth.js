@@ -159,7 +159,34 @@ router.post('/verify-2fa', async (req, res) => {
             if (!decoded.temp) {
                 return res.status(401).json({ message: 'Invalid temp token' });
             }
-        } catch (error) {
+        } catch (err) {
+            return res.status(401).json({ message: 'Temp token expired or invalid' });
+        }
+
+        const user = await User.findUnique({ where: { id: decoded.id } });
+        if (!user || !user.twoFactorSecret) {
+            return res.status(400).json({ message: 'Invalid 2FA state' });
+        }
+
+        const isValid = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: totpCode,
+            window: 1
+        });
+
+        if (!isValid) {
+            return res.status(401).json({ message: 'Invalid authenticator code' });
+        }
+
+        res.json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user.id)
+        });
+    } catch (error) {
         console.error(error);
         console.error(error.stack);
     
