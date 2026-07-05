@@ -15,7 +15,7 @@ model User {
   role              Role     @default(USER)
   phone             String?
   addresses         Json     @default("[]")
-  twoFAEnabled      Boolean  @default(false)
+  is2FAEnabled      Boolean  @default(false)
   twoFASecret       String?
   backupCodes       Json     @default("[]") @map("backup_codes")
   createdAt         DateTime @default(now()) @map("created_at")

@@ -29,7 +29,7 @@ router.post('/2fa/setup', adminOnly, async (req, res) => {
       where: { id: adminId },
       data: {
         twoFASecret: secret.base32,
-        twoFAEnabled: true
+        is2FAEnabled: true
       }
     });
 

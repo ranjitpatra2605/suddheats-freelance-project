@@ -80,29 +80,27 @@ router.post('/login', async (req, res) => {
 
   // 🔐 ADMIN + 2FA ONLY
   if (user.role === "ADMIN") {
-    if (!user.twoFAEnabled) {
-      return res.status(403).json({
-        message: 'Admin 2FA not enabled. Please set up 2FA.'
-      });
-    }
+    if (user.is2FAEnabled === false) {
+      // allow login (no block)
+    } else {
+      if (!token) {
+        return res.status(401).json({
+          message: '2FA token required'
+        });
+      }
 
-    if (!token) {
-      return res.status(401).json({
-        message: '2FA token required'
+      const verified = speakeasy.totp.verify({
+        secret: user.twoFASecret,
+        encoding: "base32",
+        token: req.body.token,
+        window: 1
       });
-    }
 
-    const verified = speakeasy.totp.verify({
-      secret: user.twoFASecret,
-      encoding: "base32",
-      token: req.body.token,
-      window: 1
-    });
-
-    if (!verified) {
-      return res.status(401).json({
-        message: 'Invalid 2FA token'
-      });
+      if (!verified) {
+        return res.status(401).json({
+          message: 'Invalid 2FA token'
+        });
+      }
     }
   }
 
