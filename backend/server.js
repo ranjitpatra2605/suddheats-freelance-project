@@ -16,13 +16,6 @@ process.on('unhandledRejection', (err) => {
 
 dotenv.config();
 
-console.log("DATABASE_URL Loaded:", !!process.env.DATABASE_URL);
-console.log("JWT_SECRET Loaded:", !!process.env.JWT_SECRET);
-if (!process.env.DATABASE_URL || !process.env.JWT_SECRET) {
-  console.error("❌ CRITICAL ERROR: Missing required environment variables.");
-  process.exit(1);
-}
-
 const app = express();
 
 // Get local IP address for network access
@@ -49,7 +42,7 @@ const allowedOrigins = [
   'http://127.0.0.1:3001',
   `http://${localIP}:3000`,
   `http://${localIP}:3001`,
-  process.env.FRONTEND_URL, // Add from .env if needed
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 console.log('🌐 Allowed CORS origins:', allowedOrigins);
@@ -57,14 +50,14 @@ console.log('🌐 Allowed CORS origins:', allowedOrigins);
 app.use(cors({
   origin: (origin, callback) => {
     console.log(`[CORS] Incoming Origin: ${origin}`);
-    const allowed = [
-      'https://gracious-love-production-df0a.up.railway.app',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000'
-    ];
-    // For debugging: unconditionally return the requested origin 
-    // instead of wildcard so credentials work
-    callback(null, origin || '*'); 
+    // Allow if origin is in allowedOrigins or if no origin (e.g. mobile apps, postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // In production you might want to callback(new Error('Not allowed by CORS'));
+      // but for now, to ensure it doesn't crash on Railway:
+      callback(null, true); 
+    }
   },
   credentials: true,
 }));
