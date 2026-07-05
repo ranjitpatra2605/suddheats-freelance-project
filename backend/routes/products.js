@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
                 where: { isFeatured: true }
             });
             console.log("Database write successful");
-            return res.json(products);
+            return res.json({ products });
         }
 
         if (bestseller === 'true') {
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
                 where: { isBestSeller: true }
             });
             console.log("Database write successful");
-            return res.json(products);
+            return res.json({ products });
         }
 
         const filter = {};
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
             orderBy: orderBy
         });
         console.log("Database write successful");
-        res.json(products);
+        res.json({ products });
     } catch (error) {
         console.error(error);
         console.error(error.stack);

@@ -44,37 +44,16 @@ function getLocalIP() {
 
 const localIP = getLocalIP();
 
-// Middleware
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
-  `http://${localIP}:3000`,
-  `http://${localIP}:3001`,
-  'https://www.shuddheats.co.in',
-  'https://shuddheats.co.in',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-console.log('🌐 Allowed CORS origins:', allowedOrigins);
-
 app.use(cors({
-  origin: (origin, callback) => {
-    console.log(`[CORS] Incoming Origin: ${origin}`);
-    // Allow if origin is in allowedOrigins or if no origin (e.g. mobile apps, postman)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // In production you might want to callback(new Error('Not allowed by CORS'));
-      // but for now, to ensure it doesn't crash on Railway:
-      callback(null, true); 
-    }
-  },
+  origin: [
+    "https://www.shuddheats.co.in",
+    "https://shuddheats.co.in",
+    "http://localhost:3000"
+  ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
-
-app.options('*', cors());
 
 app.use(express.json({
   verify: (req, res, buf) => {
