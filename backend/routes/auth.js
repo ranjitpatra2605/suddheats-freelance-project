@@ -7,6 +7,14 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
+const withTimeout = (promise, ms = 5000) => {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(`Database timeout after ${ms}ms`)), ms);
+    });
+    return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+};
+
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
 // Generate temporary session token for 2FA verification
@@ -25,20 +33,20 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 8 characters long' });
         }
 
-        console.log("Executing Prisma query...");
-        const exists = await User.findUnique({ where: { email } });
-        console.log("Database write successful");
+        console.time('register_findUnique');
+        const exists = await withTimeout(User.findUnique({ where: { email } }));
+        console.timeEnd('register_findUnique');
         if (exists) {
             console.log('⚠️ User already exists:', email);
             return res.status(400).json({ message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
-        console.log("Executing Prisma query...");
-        const user = await User.create({
+        console.time('register_createUser');
+        const user = await withTimeout(User.create({
             data: { name, email, password: hashedPassword, phone }
-        });
-        console.log("Database write successful");
+        }));
+        console.timeEnd('register_createUser');
         console.log('✅ User registered:', { id: user.id, email: user.email });
 
         res.status(201).json({
@@ -68,9 +76,9 @@ router.post('/login', async (req, res) => {
         // Debug logging
         console.log('🔐 Login attempt:', { email, hasPassword: !!password, bodyKeys: Object.keys(req.body) });
 
-        console.log("Executing Prisma query...");
-        const user = await User.findUnique({ where: { email } });
-        console.log("Database write successful");
+        console.time('login_findUnique');
+        const user = await withTimeout(User.findUnique({ where: { email } }));
+        console.timeEnd('login_findUnique');
         if (!user) {
             console.log('⚠️ User not found:', email);
             return res.status(401).json({ message: 'Invalid email or password' });
@@ -108,13 +116,12 @@ router.post('/login', async (req, res) => {
             }
         }
 
-        // Normal login (user or admin without 2FA)
-        console.log("Executing Prisma query...");
-        await User.update({
+        console.time('login_updateLastLogin');
+        await withTimeout(User.update({
             where: { id: user.id },
             data: { lastLogin: new Date() }
-        });
-        console.log("Database write successful");
+        }));
+        console.timeEnd('login_updateLastLogin');
 
         res.json({
             id: user.id,
