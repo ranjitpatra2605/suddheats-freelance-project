@@ -70,76 +70,39 @@ router.post('/register', async (req, res) => {
 
 // @POST /api/auth/login
 router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  const { email, password, token } = req.body;
 
-        // Debug logging
-        console.log('🔐 Login attempt:', { email, hasPassword: !!password, bodyKeys: Object.keys(req.body) });
+  const user = await User.findUnique({ where: { email } });
+  if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-        console.time('login_findUnique');
-        const user = await withTimeout(User.findUnique({ where: { email } }));
-        console.timeEnd('login_findUnique');
-        if (!user) {
-            console.log('⚠️ User not found:', email);
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return res.status(401).json({ message: "Invalid credentials" });
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            console.log('⚠️ Password mismatch for:', email);
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-
-        console.log('✅ Login successful:', { id: user.id, email: user.email, role: user.role });
-
-        // Check if admin with 2FA enabled
-        if (user.role === 'admin') {
-            if (!user.twoFactorSecret) {
-                console.log('⚠️ Admin without 2FA, prompting setup:', email);
-                return res.json({
-                    requiresTwoFASetup: true,
-                    requiresTwoFA: true,
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    token: generateToken(user.id)
-                });
-            } else {
-                const tempToken = generateTempToken(user.id);
-                console.log('🔑 2FA required for:', email);
-                return res.json({
-                    requiresTwoFA: true,
-                    tempSessionToken: tempToken,
-                    message: 'Enter your authenticator code'
-                });
-            }
-        }
-
-        console.time('login_updateLastLogin');
-        await withTimeout(User.update({
-            where: { id: user.id },
-            data: { lastLogin: new Date() }
-        }));
-        console.timeEnd('login_updateLastLogin');
-
-        res.json({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user.id)
-        });
-    } catch (error) {
-        console.error(error);
-        console.error(error.stack);
-    
-        return res.status(500).json({
-            success: false,
-            message: error.message,
-            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
-        });
+  // 🔐 ADMIN + 2FA ONLY
+  if (user.role === "ADMIN" && user.twoFAEnabled) {
+    if (!token) {
+      return res.status(206).json({ twoFARequired: true });
     }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFASecret,
+      encoding: "base32",
+      token,
+    });
+
+    if (!verified) {
+      return res.status(401).json({ message: "Invalid 2FA code" });
+    }
+  }
+
+  // ✅ LOGIN SUCCESS
+  const jwtToken = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  res.json({ token: jwtToken, role: user.role });
 });
 
 // @POST /api/auth/verify-2fa

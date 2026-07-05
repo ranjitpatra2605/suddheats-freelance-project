@@ -15,7 +15,7 @@ async function main() {
       name: 'Admin User',
       email: 'admin@shuddheats.com',
       password: adminPassword,
-      role: 'admin',
+      role: 'ADMIN',
       phone: '1234567890',
     },
   });

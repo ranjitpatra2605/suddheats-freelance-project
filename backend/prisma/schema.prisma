@@ -12,11 +12,11 @@ model User {
   name              String
   email             String   @unique
   password          String
-  role              String   @default("user")
+  role              Role     @default(USER)
   phone             String?
   addresses         Json     @default("[]")
-  twoFactorEnabled  Boolean  @default(false) @map("two_factor_enabled")
-  twoFactorSecret   String?  @map("two_factor_secret")
+  twoFAEnabled      Boolean  @default(false)
+  twoFASecret       String?
   backupCodes       Json     @default("[]") @map("backup_codes")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
@@ -113,4 +113,9 @@ model ContactQuery {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("contact_queries")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
