@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 12);
         console.time('register_createUser');
         const user = await withTimeout(User.create({
-            data: { name, email, password: hashedPassword, phone }
+            data: { name, email, password: hashedPassword, phone, role: 'USER' }
         }));
         console.timeEnd('register_createUser');
         console.log('✅ User registered:', { id: user.id, email: user.email });
@@ -79,7 +79,13 @@ router.post('/login', async (req, res) => {
   if (!valid) return res.status(401).json({ message: "Invalid credentials" });
 
   // 🔐 ADMIN + 2FA ONLY
-  if (user.role === "ADMIN" && user.twoFAEnabled) {
+  if (user.role === "ADMIN") {
+    if (!user.twoFAEnabled) {
+      return res.status(403).json({
+        message: 'Admin 2FA not enabled. Please set up 2FA.'
+      });
+    }
+
     if (!token) {
       return res.status(401).json({
         message: '2FA token required'
