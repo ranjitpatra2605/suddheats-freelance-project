@@ -94,6 +94,40 @@ async function main() {
     });
     console.log(`Created/Updated product: ${product.name}`);
   }
+
+  console.log('Checking for admin user...');
+  const bcrypt = require("bcryptjs");
+  const adminEmail = "admin@shuddheats.com";
+
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash("Admin@123", 10);
+    await prisma.user.create({
+      data: {
+        name: "Admin",
+        email: adminEmail,
+        password: hashedPassword,
+        role: "ADMIN",
+        is2FAEnabled: false,
+      },
+    });
+    console.log("✅ Admin user created");
+  } else {
+    // Ensure existing admin has the correct role
+    if (existingAdmin.role !== 'ADMIN') {
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: { role: 'ADMIN' }
+      });
+      console.log("✅ Admin user role updated to ADMIN");
+    } else {
+      console.log("ℹ️ Admin already exists and has correct role");
+    }
+  }
+
   console.log('Seeding completed successfully.');
 }
 

@@ -25,49 +25,39 @@ router.post('/register', async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
 
-        // Debug logging
-        console.log('📝 Register request:', { name, email, phone, hasPassword: !!password });
-
         if (!name) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ success: false, message: 'Name is required' });
         }
 
         if (!password || password.length < 8) {
-            console.log('⚠️ Weak password provided for:', email);
-            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
         }
 
-        console.time('register_findUnique');
         const exists = await withTimeout(User.findUnique({ where: { email } }));
-        console.timeEnd('register_findUnique');
         if (exists) {
-            console.log('⚠️ User already exists:', email);
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ success: false, message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
-        console.time('register_createUser');
         const user = await withTimeout(User.create({
             data: { name, email, password: hashedPassword, phone, role: 'USER' }
         }));
-        console.timeEnd('register_createUser');
-        console.log('✅ User registered:', { id: user.id, email: user.email });
 
         res.status(201).json({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user.id)
+            success: true,
+            token: generateToken(user.id),
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
         });
     } catch (error) {
         console.error(error);
-        console.error(error.stack);
-    
         return res.status(500).json({
             success: false,
-            message: error.message,
-            stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+            message: "Internal server error"
         });
     }
 });
@@ -78,14 +68,14 @@ router.post('/login', async (req, res) => {
     const { email, password, token } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res.status(400).json({ success: false, message: "Email and password are required" });
     }
 
     const user = await User.findUnique({ where: { email } });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    if (!user) return res.status(401).json({ success: false, message: "Invalid credentials" });
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+    if (!valid) return res.status(401).json({ success: false, message: "Invalid credentials" });
 
     // 🔐 ADMIN + 2FA ONLY
     if (user.role === "ADMIN") {
@@ -94,6 +84,7 @@ router.post('/login', async (req, res) => {
       } else {
         if (!token) {
           return res.status(403).json({
+            success: false,
             message: 'OTP required for Admin login',
             requireOTP: true
           });
@@ -108,6 +99,7 @@ router.post('/login', async (req, res) => {
 
         if (!verified) {
           return res.status(401).json({
+            success: false,
             message: 'Invalid 2FA token'
           });
         }
@@ -121,10 +113,19 @@ router.post('/login', async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.status(200).json({ token: jwtToken, role: user.role, message: "Login successful" });
+    res.status(200).json({
+      success: true,
+      token: String(jwtToken),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
