@@ -77,23 +77,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     document.cookie = `token=${data.token}; path=/; max-age=2592000; SameSite=Lax`;
                 }
                 api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-                setUser(data);
+                const userData = data.user || data;
+                setUser({
+                    id: userData.id,
+                    name: userData.name,
+                    email: userData.email,
+                    phone: userData.phone,
+                    role: userData.role,
+                    token: data.token
+                });
                 setRequiresTwoFA(false);
                 setTempSessionToken(null);
                 return { requiresTwoFASetup: true };
             }
 
             // Normal login
-            console.log('✅ Login successful:', { id: data.id, email: data.email, role: data.role });
+            const userData = data.user || data;
+            console.log('✅ Login successful:', { id: userData.id, email: userData.email, role: userData.role });
+            const userObj = {
+                id: userData.id,
+                name: userData.name,
+                email: userData.email,
+                phone: userData.phone,
+                role: userData.role,
+                token: data.token
+            };
             try {
                 if (typeof localStorage !== 'undefined') {
                     localStorage.setItem('shuddheats_token', data.token);
-                    localStorage.setItem('shuddheats_user', JSON.stringify(data));
+                    localStorage.setItem('shuddheats_user', JSON.stringify(userObj));
                 }
             } catch (e) {
                 console.warn('Could not save to localStorage:', e);
             }
-            setUser(data);
+            setUser(userObj);
             setRequiresTwoFA(false);
             setTempSessionToken(null);
             return { requiresTwoFA: false };
@@ -113,15 +130,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             totpCode
         });
 
+        const userData = data.user || data;
+        const userObj = {
+            id: userData.id,
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            role: userData.role,
+            token: data.token
+        };
+
         try {
             if (typeof localStorage !== 'undefined') {
                 localStorage.setItem('shuddheats_token', data.token);
-                localStorage.setItem('shuddheats_user', JSON.stringify(data));
+                localStorage.setItem('shuddheats_user', JSON.stringify(userObj));
             }
         } catch (e) {
             console.warn('Could not save to localStorage:', e);
         }
-        setUser(data);
+        setUser(userObj);
         setRequiresTwoFA(false);
         setTempSessionToken(null);
     };
@@ -130,16 +157,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             console.log('📝 Attempting registration:', { name, email, phone, hasPassword: !!password });
             const { data } = await api.post('/auth/register', { name, email, password, phone });
-            console.log('✅ Registration successful:', { id: data.id, email: data.email, role: data.role });
+            
+            const userData = data.user || data;
+            const userObj = {
+                id: userData.id,
+                name: userData.name,
+                email: userData.email,
+                phone: userData.phone,
+                role: userData.role,
+                token: data.token
+            };
+
+            console.log('✅ Registration successful:', { id: userData.id, email: userData.email, role: userData.role });
             try {
                 if (typeof localStorage !== 'undefined') {
                     localStorage.setItem('shuddheats_token', data.token);
-                    localStorage.setItem('shuddheats_user', JSON.stringify(data));
+                    localStorage.setItem('shuddheats_user', JSON.stringify(userObj));
                 }
             } catch (e) {
                 console.warn('Could not save to localStorage:', e);
             }
-            setUser(data);
+            setUser(userObj);
         } catch (error) {
             console.error('❌ Registration failed:', error);
             throw error;
