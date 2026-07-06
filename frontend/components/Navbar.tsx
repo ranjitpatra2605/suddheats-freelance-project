@@ -270,7 +270,7 @@ export default function Navbar() {
                                         )}
                                         <div className="h-6 w-px bg-gray-200 hidden md:block" />
                                         <span className="text-xs font-semibold px-2.5 py-1.5 rounded-md text-white hidden md:inline" style={{ background: '#556B2F' }}>
-                                            {user.name.split(' ')[0]}
+                                            {(user.name || "User").split(' ')[0]}
                                         </span>
                                         <button onClick={handleLogout} className="p-2 rounded-lg hover:bg-red-50 transition-all" title="Logout">
                                             <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
