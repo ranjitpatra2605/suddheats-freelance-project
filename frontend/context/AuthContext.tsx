@@ -41,25 +41,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [tempSessionToken, setTempSessionToken] = useState<string | null>(null);
 
     useEffect(() => {
-        try {
-            // Safe localStorage access for mobile
-            if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-                const stored = localStorage.getItem('shuddheats_user');
-                if (stored) {
-                    setUser(JSON.parse(stored));
-                }
-            }
-        } catch (error) {
-            console.warn('localStorage not available:', error);
-        } finally {
-            setLoading(false);
+        const storedUser = localStorage.getItem('shuddheats_user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
         }
+        setLoading(false);
     }, []);
 
     const login = async (email: string, password: string) => {
         try {
             console.log('🔐 Attempting login:', { email, hasPassword: !!password });
             const { data } = await api.post('/auth/login', { email, password });
+            console.log("LOGIN API RESPONSE:", data);
 
             if (data.requiresTwoFA) {
                 // Admin with 2FA enabled
@@ -77,40 +70,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     document.cookie = `token=${data.token}; path=/; max-age=2592000; SameSite=Lax`;
                 }
                 api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-                const userData = data.user || data;
-                setUser({
-                    id: userData.id,
-                    name: userData.name,
-                    email: userData.email,
-                    phone: userData.phone,
-                    role: userData.role,
+                
+                const userData = {
+                    id: data.user.id,
+                    name: data.user.name,
+                    email: data.user.email,
+                    phone: data.user.phone,
+                    role: data.user.role,
                     token: data.token
-                });
+                };
+                setUser(userData);
                 setRequiresTwoFA(false);
                 setTempSessionToken(null);
                 return { requiresTwoFASetup: true };
             }
 
             // Normal login
-            const userData = data.user || data;
-            console.log('✅ Login successful:', { id: userData.id, email: userData.email, role: userData.role });
-            const userObj = {
-                id: userData.id,
-                name: userData.name,
-                email: userData.email,
-                phone: userData.phone,
-                role: userData.role,
+            const userData = {
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                phone: data.user.phone,
+                role: data.user.role,
                 token: data.token
             };
+
+            setUser(userData);
             try {
-                if (typeof localStorage !== 'undefined') {
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('shuddheats_user', JSON.stringify(userData));
                     localStorage.setItem('shuddheats_token', data.token);
-                    localStorage.setItem('shuddheats_user', JSON.stringify(userObj));
                 }
             } catch (e) {
                 console.warn('Could not save to localStorage:', e);
             }
-            setUser(userObj);
+            
             setRequiresTwoFA(false);
             setTempSessionToken(null);
             return { requiresTwoFA: false };
