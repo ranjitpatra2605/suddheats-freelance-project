@@ -14,7 +14,7 @@ const getCashfreeURL = () => {
 // Create Cashfree order and return payment session id
 router.post('/create-order', async (req, res) => {
     try {
-        const { orderId, customer_phone, customer_email, customer_name } = req.body;
+        const { orderId, amount, currency, customer_phone, customer_email, customer_name } = req.body;
         if (!orderId) {
             return res.status(400).json({ message: 'Order ID is required' });
         }
@@ -32,12 +32,20 @@ router.post('/create-order', async (req, res) => {
         console.log(`[CASHFREE] Order Creation API called for DB order: ${orderId}, return_url: ${returnUrl}`);
 
         const finalPhone = customer_phone || (order.shippingAddress && order.shippingAddress.phone) || order.user.phone;
-
         const finalName = customer_name || (order.shippingAddress && order.shippingAddress.fullName) || order.user.name;
+        
+        const finalEmail = customer_email || req.user?.email || order.user?.email || "test@shuddheats.com"; // fallback (important)
 
         if (!finalPhone || !/^[6-9]\d{9}$/.test(finalPhone.toString().trim())) {
             return res.status(400).json({ message: 'customer_details.customer_phone is missing or invalid in the request. A valid 10-digit Indian mobile number is required.' });
         }
+
+        console.log("PAYMENT CREATE ORDER:", {
+            finalEmail,
+            customer_phone: finalPhone,
+            customer_name: finalName,
+            amount: order.totalPrice
+        });
 
         const cashfreePayload = {
             order_id: order.id,
