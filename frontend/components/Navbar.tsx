@@ -195,7 +195,7 @@ export default function Navbar() {
                                     alt="Shuddh Eats Logo"
                                     width={130}
                                     height={44}
-                                    className="h-8 sm:h-10 w-auto object-contain"
+                                    className="h-5 sm:h-6 w-auto object-contain"
                                     priority
                                 />
                             </Link>
