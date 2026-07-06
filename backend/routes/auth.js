@@ -28,6 +28,10 @@ router.post('/register', async (req, res) => {
         // Debug logging
         console.log('📝 Register request:', { name, email, phone, hasPassword: !!password });
 
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
+        }
+
         if (!password || password.length < 8) {
             console.log('⚠️ Weak password provided for:', email);
             return res.status(400).json({ message: 'Password must be at least 8 characters long' });
@@ -70,48 +74,58 @@ router.post('/register', async (req, res) => {
 
 // @POST /api/auth/login
 router.post('/login', async (req, res) => {
-  const { email, password, token } = req.body;
+  try {
+    const { email, password, token } = req.body;
 
-  const user = await User.findUnique({ where: { email } });
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+    const user = await User.findUnique({ where: { email } });
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-  // 🔐 ADMIN + 2FA ONLY
-  if (user.role === "ADMIN") {
-    if (user.is2FAEnabled === false) {
-      // allow login (no block)
-    } else {
-      if (!token) {
-        return res.status(401).json({
-          message: '2FA token required'
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+
+    // 🔐 ADMIN + 2FA ONLY
+    if (user.role === "ADMIN") {
+      if (user.is2FAEnabled === false) {
+        // allow login (no block)
+      } else {
+        if (!token) {
+          return res.status(403).json({
+            message: 'OTP required for Admin login',
+            requireOTP: true
+          });
+        }
+
+        const verified = speakeasy.totp.verify({
+          secret: user.twoFASecret,
+          encoding: "base32",
+          token: token,
+          window: 1
         });
-      }
 
-      const verified = speakeasy.totp.verify({
-        secret: user.twoFASecret,
-        encoding: "base32",
-        token: req.body.token,
-        window: 1
-      });
-
-      if (!verified) {
-        return res.status(401).json({
-          message: 'Invalid 2FA token'
-        });
+        if (!verified) {
+          return res.status(401).json({
+            message: 'Invalid 2FA token'
+          });
+        }
       }
     }
+
+    // ✅ LOGIN SUCCESS
+    const jwtToken = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({ token: jwtToken, role: user.role, message: "Login successful" });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  // ✅ LOGIN SUCCESS
-  const jwtToken = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-
-  res.json({ token: jwtToken, role: user.role });
 });
 
 // @POST /api/auth/verify-2fa

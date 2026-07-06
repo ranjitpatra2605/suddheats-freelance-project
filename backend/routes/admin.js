@@ -22,7 +22,9 @@ router.post('/2fa/setup', adminOnly, async (req, res) => {
     });
 
     // 🔑 THIS IS THE KEY YOU WANT
-    console.log("ADMIN 2FA BASE32 KEY:", secret.base32);
+    console.log("==========================================");
+    console.log(`ADMIN 2FA SECRET (SAVE THIS): ${secret.base32}`);
+    console.log("==========================================");
 
     // Save Base32 secret in DB
     await prisma.user.update({
