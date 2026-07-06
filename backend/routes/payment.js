@@ -32,7 +32,7 @@ router.post('/create-order', async (req, res) => {
         console.log(`[CASHFREE] Order Creation API called for DB order: ${orderId}, return_url: ${returnUrl}`);
 
         const finalPhone = customer_phone || (order.shippingAddress && order.shippingAddress.phone) || order.user.phone;
-        const finalEmail = customer_email || order.user.email;
+
         const finalName = customer_name || (order.shippingAddress && order.shippingAddress.fullName) || order.user.name;
 
         if (!finalPhone || !/^[6-9]\d{9}$/.test(finalPhone.toString().trim())) {
@@ -70,7 +70,7 @@ router.post('/create-order', async (req, res) => {
         });
 
         const data = await response.json();
-        
+
         if (!response.ok) {
             console.error('Cashfree Create Order Error:', data);
             return res.status(response.status).json({ message: data.message || 'Failed to create payment session' });
@@ -80,7 +80,7 @@ router.post('/create-order', async (req, res) => {
     } catch (error) {
         console.error(error);
         console.error(error.stack);
-    
+
         return res.status(500).json({
             success: false,
             message: error.message,
@@ -101,7 +101,7 @@ router.post('/webhook', async (req, res) => {
     try {
         const ts = req.headers['x-webhook-timestamp'];
         const signature = req.headers['x-webhook-signature'];
-        
+
         if (!ts || !signature) {
             return res.status(400).json({ message: 'Missing Cashfree webhook headers' });
         }
@@ -128,9 +128,9 @@ router.post('/webhook', async (req, res) => {
 
         // Extract order_id from payload.data.order (Cashfree 2023-08-01 format)
         const order_id = payload.data?.order?.order_id || payload.data?.payment?.order_id;
-        
+
         console.log(`[CASHFREE WEBHOOK] Payload received. Extracted order_id: ${order_id}`);
-        
+
         if (!order_id) {
             console.error('[CASHFREE WEBHOOK] Order ID not found in webhook payload:', JSON.stringify(payload));
             return res.status(200).json({ status: 'OK', message: 'Payload missing order_id' }); // Return 200 so cashfree stops retrying invalid payloads
@@ -139,15 +139,15 @@ router.post('/webhook', async (req, res) => {
         // Process based on event type
         if (payload.type === 'PAYMENT_SUCCESS_WEBHOOK') {
             const { payment_status } = payload.data.payment || {};
-            
+
             if (payment_status === 'SUCCESS') {
                 const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
-                
+
                 if (!existingOrder) {
                     console.error(`[CASHFREE WEBHOOK] Database order not found for order_id: ${order_id}`);
                     return res.status(404).json({ message: 'Order not found' });
                 }
-                
+
                 console.log(`[CASHFREE WEBHOOK] Database order found: ${existingOrder.id}`);
 
                 if (existingOrder.isPaid) {
@@ -170,7 +170,7 @@ router.post('/webhook', async (req, res) => {
             }
         } else if (payload.type === 'PAYMENT_FAILED_WEBHOOK' || payload.type === 'PAYMENT_USER_DROPPED_WEBHOOK') {
             const existingOrder = await prisma.order.findUnique({ where: { id: order_id } });
-                
+
             if (existingOrder && !existingOrder.isPaid) {
                 console.log("Executing Prisma query...");
                 await prisma.order.update({
@@ -193,7 +193,7 @@ router.post('/webhook', async (req, res) => {
     } catch (error) {
         console.error(error);
         console.error(error.stack);
-    
+
         return res.status(500).json({
             success: false,
             message: error.message,
@@ -220,7 +220,7 @@ router.get('/status/:orderId', async (req, res) => {
     } catch (error) {
         console.error(error);
         console.error(error.stack);
-    
+
         return res.status(500).json({
             success: false,
             message: error.message,
