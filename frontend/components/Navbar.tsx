@@ -193,9 +193,9 @@ export default function Navbar() {
                                 <Image
                                     src="https://res.cloudinary.com/dyf00ptkk/image/upload/v1780563575/shuddheats/assets/logo-shuddheats.png"
                                     alt="Shuddh Eats Logo"
-                                    width={130}
-                                    height={44}
-                                    className="h-8 sm:h-10 w-auto object-contain"
+                                    width={180}
+                                    height={60}
+                                    className="h-12 sm:h-16 w-auto object-contain"
                                     priority
                                 />
                             </Link>
