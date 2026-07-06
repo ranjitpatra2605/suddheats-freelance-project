@@ -137,6 +137,7 @@ export default function CheckoutPage() {
         if (!validate()) return;
         if (!user) { router.push('/auth/login?redirect=/checkout'); return; }
         console.log("USER AT CHECKOUT:", user);
+        console.log("EMAIL:", user?.email);
         if (!user.email) { toast.error('Email is required for payment'); return; }
         if (items.length === 0) { toast.error('Cart is empty'); return; }
         
